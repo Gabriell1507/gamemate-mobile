@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gamemate/components/login/custom_input.dart';
+import 'package:gamemate/components/login/primary_button.dart';
+import 'package:gamemate/components/login/social_button.dart';
 import 'package:get/get.dart';
 import '../controllers/login_controller.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class LoginView extends GetView<LoginController> {
   @override
@@ -23,96 +26,79 @@ class LoginView extends GetView<LoginController> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SvgPicture.asset(
-                  'assets/gamemate_login_logo.svg',
-                  width: 260,
-                ),
-                const SizedBox(height: 16),
+                SvgPicture.asset('assets/gamemate_login_logo.svg', width: 250),
+                const SizedBox(height: 50),
                 Obx(() => controller.showError.value
-                    ? const Text("X Email ou senha inválidos", style: TextStyle(color: Colors.red))
+                    ? const Text("X Email ou senha inválidos",
+                        style: TextStyle(color: Colors.red))
                     : const SizedBox.shrink()),
                 const SizedBox(height: 8),
-                TextField(
+                CustomInput(
+                  hintText: "Email",
                   onChanged: (val) => controller.email.value = val,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: const Color.fromRGBO(0, 31, 63, 1),
-                    hintText: "Email",
-                    hintStyle: const TextStyle(color: Colors.white54),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color.fromRGBO(34, 132, 230, 1)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color.fromRGBO(34, 132, 230, 1)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
                 ),
                 const SizedBox(height: 12),
-                Obx(() => TextField(
-                  onChanged: (val) => controller.password.value = val,
-                  obscureText: controller.obscurePassword.value,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        controller.obscurePassword.value ? Icons.visibility : Icons.visibility_off,
-                        color: Colors.white54,
+                Obx(() => CustomInput(
+                      hintText: "Senha",
+                      onChanged: (val) => controller.password.value = val,
+                      obscureText: controller.obscurePassword.value,
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          controller.obscurePassword.value
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.white,
+                        ),
+                        onPressed: controller.toggleObscure,
                       ),
-                      onPressed: controller.toggleObscure,
-                    ),
-                    filled: true,
-                    fillColor: const Color.fromRGBO(0, 31, 63, 1),
-                    hintText: "Senha",
-                    hintStyle: const TextStyle(color: Colors.white54),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color.fromRGBO(34, 132, 230, 1)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: const BorderSide(color: Color.fromRGBO(34, 132, 230, 1)),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                )),
+                    )),
                 const SizedBox(height: 8),
                 Align(
-                  alignment: Alignment.centerRight,
+                  alignment: Alignment.centerLeft,
                   child: TextButton(
                     onPressed: () {},
-                    child: const Text("Esqueceu sua senha? Clique aqui", style: TextStyle(color: Colors.white54)),
+                    child: const Text("Esqueceu sua senha? Clique aqui",
+                        style: TextStyle(color: Colors.white)),
                   ),
                 ),
-                ElevatedButton(
+                PrimaryButton(
+                  text: "Entrar",
                   onPressed: controller.login,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
-                    minimumSize: const Size.fromHeight(45),
-                  ),
-                  child: const Text("Entrar"),
                 ),
                 const SizedBox(height: 12),
-                const Text("ou", style: TextStyle(color: Colors.white54)),
-                const SizedBox(height: 12),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.g_mobiledata, color: Colors.black),
-                  label: const Text("Entrar com o google", style: TextStyle(color: Colors.black)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    minimumSize: const Size.fromHeight(45),
-                  ),
+               const Row(
+                  children: <Widget>[
+                     Expanded(
+                      child: Divider(
+                        color: Color.fromRGBO(34, 132, 230, 1),
+                        thickness: 2,
+                        indent: 10,
+                        endIndent: 10,
+                      ),
+                    ),
+                     Text(
+                      "ou",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                     Expanded(
+                      child: Divider(
+                        color: Color.fromRGBO(34, 132, 230, 1),
+                        thickness: 2,
+                        indent: 10,
+                        endIndent: 10,
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 12),
-                ElevatedButton(
+                SocialButton(
+                  text: "Entrar com Google",
                   onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
-                    minimumSize: const Size.fromHeight(45),
-                  ),
-                  child: const Text("Cadastrar"),
+                ),
+                const SizedBox(height: 12),
+                PrimaryButton(
+                  text: "Cadastrar",
+                  onPressed: () {},
                 ),
               ],
             ),

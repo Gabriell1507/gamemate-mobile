@@ -12,8 +12,8 @@ class LoginController extends GetxController {
       showError.value = true;
     } else {
       showError.value = false;
-      
-      print('Logando com email: ${email.value} e senha: ${password.value}');
+
+      print('sucesso');
     }
   }
 
