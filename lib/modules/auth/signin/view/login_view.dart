@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gamemate/components/login/custom_input.dart';
-import 'package:gamemate/components/login/primary_button.dart';
-import 'package:gamemate/components/login/social_button.dart';
+import 'package:gamemate/modules/auth/signin/controllers/login_controller.dart';
+import 'package:gamemate/widgets/login/custom_input.dart';
+import 'package:gamemate/widgets/login/primary_button.dart';
+import 'package:gamemate/widgets/login/social_button.dart';
 import 'package:get/get.dart';
-import '../controllers/login_controller.dart';
 
 class LoginView extends GetView<LoginController> {
   @override

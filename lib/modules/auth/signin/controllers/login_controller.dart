@@ -9,7 +9,7 @@ class LoginController extends GetxController {
   var passwordError = ''.obs;
   var obscurePassword = true.obs;
 
-  final RegExp _emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+
 
   final RegExp _passwordRegex = RegExp(r'^[A-Z](?=.*[a-z])(?=.*\d)(?=.*[!@#\$&*~]).{5,}$');
 
@@ -19,23 +19,20 @@ class LoginController extends GetxController {
   }
 
   void setEmail(String value) {
-    email.value = value;
+    GetUtils.isEmail(value)
+        ? email.value = value
+        : email.value = '';
     validateEmail();
   }
 
   void setPassword(String value) {
-    password.value = value;
     validatePassword();
   }
 
   bool validateEmail() {
-    if (!_emailRegex.hasMatch(email.value)) {
-      emailError.value = 'Email inválido';
-      return false;
-    } else {
-      emailError.value = '';
-      return true;  
-    }
+    final valid = GetUtils.isEmail(email.value);
+    emailError.value = valid ? '' : 'Email inválido';
+    return valid;
   }
 
   bool validatePassword() {
