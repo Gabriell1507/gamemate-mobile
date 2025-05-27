@@ -28,19 +28,24 @@ class LoginView extends GetView<LoginController> {
               children: [
                 SvgPicture.asset('assets/gamemate_login_logo.svg', width: 250),
                 const SizedBox(height: 50),
-                Obx(() => controller.showError.value
-                    ? const Text("X Email ou senha inválidos",
-                        style: TextStyle(color: Colors.red))
-                    : const SizedBox.shrink()),
                 const SizedBox(height: 8),
                 CustomInput(
                   hintText: "Email",
-                  onChanged: (val) => controller.email.value = val,
+                  onChanged: controller.setEmail,
                 ),
+                Obx(() => controller.showError.value &&
+                        controller.emailError.value.isNotEmpty
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          controller.emailError.value,
+                          style: TextStyle(color: Colors.red),
+                        ))
+                    : SizedBox.shrink()),
                 const SizedBox(height: 12),
                 Obx(() => CustomInput(
                       hintText: "Senha",
-                      onChanged: (val) => controller.password.value = val,
+                      onChanged: controller.setPassword,
                       obscureText: controller.obscurePassword.value,
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -52,6 +57,16 @@ class LoginView extends GetView<LoginController> {
                         onPressed: controller.toggleObscure,
                       ),
                     )),
+                Obx(() => controller.showError.value &&
+                        controller.passwordError.value.isNotEmpty
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          controller.passwordError.value,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      )
+                    : SizedBox.shrink()),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,
@@ -66,9 +81,9 @@ class LoginView extends GetView<LoginController> {
                   onPressed: controller.login,
                 ),
                 const SizedBox(height: 12),
-               const Row(
+                const Row(
                   children: <Widget>[
-                     Expanded(
+                    Expanded(
                       child: Divider(
                         color: Color.fromRGBO(34, 132, 230, 1),
                         thickness: 2,
@@ -76,11 +91,11 @@ class LoginView extends GetView<LoginController> {
                         endIndent: 10,
                       ),
                     ),
-                     Text(
+                    Text(
                       "ou",
                       style: TextStyle(color: Colors.white),
                     ),
-                     Expanded(
+                    Expanded(
                       child: Divider(
                         color: Color.fromRGBO(34, 132, 230, 1),
                         thickness: 2,
