@@ -113,7 +113,9 @@ class LoginView extends GetView<LoginController> {
                 const SizedBox(height: 12),
                 PrimaryButton(
                   text: "Cadastrar",
-                  onPressed: () {},
+                  onPressed: () {
+                    Get.toNamed('/register');
+                  },
                 ),
               ],
             ),

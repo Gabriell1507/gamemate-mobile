@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gamemate/routes/routes.dart';
 import 'package:get/get.dart';
-import 'modules/auth/signin/bindings/login_binding.dart';
-import 'modules/auth/signin/view/login_view.dart';
+
 
 void main() {
   runApp(const GameMateApp());
