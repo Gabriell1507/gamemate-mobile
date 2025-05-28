@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gamemate/routes/routes.dart';
 import 'package:get/get.dart';
-import 'bindings/login_binding.dart';
-import 'views/login_view.dart';
+import 'modules/auth/signin/bindings/login_binding.dart';
+import 'modules/auth/signin/view/login_view.dart';
 
 void main() {
   runApp(const GameMateApp());
@@ -14,8 +15,8 @@ class GameMateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: 'GameMate',
-      initialBinding: LoginBinding(),
-      home: LoginView(),
+      initialRoute: AppRoute.splash,
+      getPages: AppRoute.pages,
       debugShowCheckedModeBanner: false,
     );
   }

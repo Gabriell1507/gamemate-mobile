@@ -39,9 +39,9 @@ class LoginView extends GetView<LoginController> {
                         alignment: Alignment.centerLeft,
                         child: Text(
                           controller.emailError.value,
-                          style: TextStyle(color: Colors.red),
+                          style: const TextStyle(color: Colors.red),
                         ))
-                    : SizedBox.shrink()),
+                    : const SizedBox.shrink()),
                 const SizedBox(height: 12),
                 Obx(() => CustomInput(
                       hintText: "Senha",

@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../models/login_model.dart';
+import '../model/login_model.dart';
 
 class LoginController extends GetxController {
   var email = ''.obs;
@@ -9,7 +9,7 @@ class LoginController extends GetxController {
   var passwordError = ''.obs;
   var obscurePassword = true.obs;
 
-
+  final RegExp _emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
 
   final RegExp _passwordRegex = RegExp(r'^[A-Z](?=.*[a-z])(?=.*\d)(?=.*[!@#\$&*~]).{5,}$');
 
@@ -19,20 +19,23 @@ class LoginController extends GetxController {
   }
 
   void setEmail(String value) {
-    GetUtils.isEmail(value)
-        ? email.value = value
-        : email.value = '';
+    email.value = value;
     validateEmail();
   }
 
   void setPassword(String value) {
+    password.value = value;
     validatePassword();
   }
 
   bool validateEmail() {
-    final valid = GetUtils.isEmail(email.value);
-    emailError.value = valid ? '' : 'Email inválido';
-    return valid;
+    if (!_emailRegex.hasMatch(email.value)) {
+      emailError.value = 'Email inválido';
+      return false;
+    } else {
+      emailError.value = '';
+      return true;  
+    }
   }
 
   bool validatePassword() {
@@ -69,7 +72,12 @@ class LoginController extends GetxController {
       return;
     } else {
       showError.value = false;
+
+
     }
   }
+
+
+
 
 }

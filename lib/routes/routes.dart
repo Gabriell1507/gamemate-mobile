@@ -1,0 +1,31 @@
+import 'package:gamemate/modules/auth/signin/bindings/login_binding.dart';
+import 'package:gamemate/modules/auth/signin/view/login_view.dart';
+import 'package:gamemate/modules/splash/binding/splash_binding.dart';
+import 'package:gamemate/modules/splash/view/splash_view.dart';
+import 'package:get/get.dart';
+
+class AppRoute {
+
+  static String splash = '/splash';
+
+  //Auth
+  static String login = '/login';
+  static String register = '/register';
+  static String forgotPassword = '/forgot-password';
+  
+  static List<GetPage> pages = [
+    GetPage(
+      binding: SplashBinding(),
+      name: splash,
+      page: () => const SplashView(),
+    ),
+
+    GetPage(
+      binding: LoginBinding(),
+      name: login,
+      page: () =>  LoginView(),
+    )
+  ];
+
+
+}
