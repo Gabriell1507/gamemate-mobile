@@ -27,8 +27,8 @@ class LoginView extends GetView<LoginController> {
             child: Column(
               children: [
                 SvgPicture.asset('assets/gamemate_login_logo.svg', width: 250),
-                const SizedBox(height: 50),
-                const SizedBox(height: 8),
+                const SizedBox(height: 58),
+                
                 CustomInput(
                   hintText: "Email",
                   onChanged: controller.setEmail,
@@ -57,16 +57,16 @@ class LoginView extends GetView<LoginController> {
                         onPressed: controller.toggleObscure,
                       ),
                     )),
-                Obx(() => controller.showError.value &&
-                        controller.passwordError.value.isNotEmpty
-                    ? Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          controller.passwordError.value,
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      )
-                    : SizedBox.shrink()),
+                // Obx(() => controller.showError.value &&
+                //         controller.passwordError.value.isNotEmpty
+                //     ? Align(
+                //         alignment: Alignment.centerLeft,
+                //         child: Text(
+                //           controller.passwordError.value,
+                //           style: TextStyle(color: Colors.red),
+                //         ),
+                //       )
+                //     : SizedBox.shrink()),
                 const SizedBox(height: 8),
                 Align(
                   alignment: Alignment.centerLeft,

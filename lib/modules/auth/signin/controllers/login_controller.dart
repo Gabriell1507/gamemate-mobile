@@ -58,7 +58,7 @@ class LoginController extends GetxController {
   }
 
   passwordError.value =
-      errors.isNotEmpty ? 'A senha deve ${errors.join(', ')}.' : '';
+      errors.isNotEmpty ? 'A senha está incorreta' : 'Preencha a senha corretamente';
   return errors.isEmpty;
 }
 

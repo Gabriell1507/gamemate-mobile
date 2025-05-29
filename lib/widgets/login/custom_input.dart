@@ -24,7 +24,7 @@ class CustomInput extends StatelessWidget {
         filled: true,
         fillColor: const Color.fromRGBO(0, 31, 63, 1),
         hintText: hintText,
-        hintStyle: const TextStyle(color: Colors.white54),
+        hintStyle: const TextStyle(color: Colors.white),
         enabledBorder: UnderlineInputBorder(
           borderSide: const BorderSide(color: Color.fromRGBO(34, 132, 230, 1)),
           borderRadius: BorderRadius.circular(8),
