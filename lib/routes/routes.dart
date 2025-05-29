@@ -1,3 +1,5 @@
+import 'package:gamemate/modules/auth/recovery_password/bindings/recovery_password_binding.dart';
+import 'package:gamemate/modules/auth/recovery_password/view/recovery_password_view.dart';
 import 'package:gamemate/modules/auth/signin/bindings/login_binding.dart';
 import 'package:gamemate/modules/auth/signin/view/login_view.dart';
 import 'package:gamemate/modules/auth/signup/bindings/signup_bindings.dart';
@@ -32,6 +34,12 @@ class AppRoute {
       name: register,
       page: () => const SignupView(),
       binding: SignupBindings(), 
+    ),
+
+    GetPage(
+      name : forgotPassword,
+      page: () => const ForgotPasswordView(),
+      binding: ForgotPasswordBinding(),
     ),
   ];
 

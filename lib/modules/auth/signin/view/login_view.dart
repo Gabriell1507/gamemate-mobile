@@ -71,7 +71,9 @@ class LoginView extends GetView<LoginController> {
                 Align(
                   alignment: Alignment.centerLeft,
                   child: TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Get.toNamed('/forgot-password');
+                    },
                     child: const Text("Esqueceu sua senha? Clique aqui",
                         style: TextStyle(color: Colors.white)),
                   ),
