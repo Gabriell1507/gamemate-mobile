@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "9546524721",
+    "project_id": "gamemate-final",
+    "storage_bucket": "gamemate-final.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:9546524721:android:df6dab1f888a2b09ae4d10",
+        "android_client_info": {
+          "package_name": "br.com.gamemate.gamemate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "9546524721-8bq05va9hc2narpbn2vc2gs4rsksk3pt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.gamemate.gamemate",
+            "certificate_hash": "2a2f0801f74f070cb27904a901977840477115f7"
+          }
+        },
+        {
+          "client_id": "9546524721-02bnk12l5k5giiij55cvhlabvoagtdqj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQfNUoruHoXF2-dcebgY7CjW2osi4TSUI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "9546524721-02bnk12l5k5giiij55cvhlabvoagtdqj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

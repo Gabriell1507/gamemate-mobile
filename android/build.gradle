@@ -1,3 +1,23 @@
+buildscript {
+    ext.kotlin_version = '2.1.21'
+    repositories {
+        google()
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath "com.google.gms:google-services:4.4.2"
+        classpath "com.google.firebase:firebase-crashlytics-gradle:2.9.9"
+        
+    }
+}
+plugins {
+    id "com.android.application" version "8.5.0" apply false
+    id "dev.flutter.flutter-gradle-plugin" apply false
+}
+
 allprojects {
     repositories {
         google()
@@ -16,3 +36,4 @@ subprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
