@@ -4,6 +4,8 @@ import 'package:gamemate/modules/auth/signin/bindings/login_binding.dart';
 import 'package:gamemate/modules/auth/signin/view/login_view.dart';
 import 'package:gamemate/modules/auth/signup/bindings/signup_bindings.dart';
 import 'package:gamemate/modules/auth/signup/view/signup_view.dart';
+import 'package:gamemate/modules/home/bindings/home_bindings.dart';
+import 'package:gamemate/modules/home/view/home_view.dart';
 import 'package:gamemate/modules/splash/binding/splash_binding.dart';
 import 'package:gamemate/modules/splash/view/splash_view.dart';
 import 'package:get/get.dart';
@@ -16,6 +18,9 @@ class AppRoute {
   static String login = '/login';
   static String register = '/register';
   static String forgotPassword = '/forgot-password';
+
+  //Home
+  static String home = '/home';
   
   static List<GetPage> pages = [
     GetPage(
@@ -40,6 +45,12 @@ class AppRoute {
       name : forgotPassword,
       page: () => const ForgotPasswordView(),
       binding: ForgotPasswordBinding(),
+    ),
+
+    GetPage(
+      name: home,
+      page: () => HomeView(),
+      binding: HomeBindings(), 
     ),
   ];
 
