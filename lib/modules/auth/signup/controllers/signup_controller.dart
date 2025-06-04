@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gamemate/modules/auth/signup/models/user_model.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class SignupController extends GetxController {
@@ -59,7 +59,6 @@ class SignupController extends GetxController {
     if (nickname.isEmpty) {
       errorNickname.value = 'Preencha o apelido';
     } else {
-      
       errorNickname.value = '';
     }
   }
@@ -124,21 +123,50 @@ class SignupController extends GetxController {
     return errors;
   }
 
-  Future<void> validateFields() async {
-    // Essa validação pode ficar para o momento do submit (clicar botão),
-    // já que a validação em tempo real já está ativa.
+  Future<void> registerUser() async {
+    if (!validateAllOnSubmit()) return;
+
+    final auth = FirebaseAuth.instance;
+    
+
+    final username = usernameController.text.trim();
+    final nickname = nicknameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text;
+
+    try {
+      
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+     
+      await userCredential.user!.updateDisplayName(nickname);
+
+   
+    
+
+      print('Usuário registrado com sucesso: $nickname');
+
+      _clearForm();
+
+    
+      Get.offAllNamed('/login');
+    } on FirebaseAuthException catch (e) {
+      String message = 'Erro ao registrar usuário.';
+      if (e.code == 'email-already-in-use') {
+        message = 'Esse email já está cadastrado.';
+      } else if (e.code == 'weak-password') {
+        message = 'A senha é muito fraca.';
+      }
+      Get.snackbar('Erro', message, snackPosition: SnackPosition.BOTTOM);
+    } catch (e) {
+      Get.snackbar('Erro', 'Erro inesperado: $e', snackPosition: SnackPosition.BOTTOM);
+    }
   }
 
-  void registerUser() {
-    final newUser = UserModel(
-      username: usernameController.text.trim(),
-      nickname: nicknameController.text.trim(),
-      email: emailController.text.trim(),
-      password: passwordController.text,
-    );
-
-    print('Usuário registrado: ${newUser.toJson()}');
-
+  void _clearForm() {
     usernameController.clear();
     nicknameController.clear();
     emailController.clear();
@@ -150,6 +178,45 @@ class SignupController extends GetxController {
     errorEmail.value = '';
     errorPassword.value = '';
     errorConfirmPassword.value = '';
+  }
+
+  bool validateAllOnSubmit() {
+    bool hasError = false;
+
+    if (usernameController.text.trim().isEmpty) {
+      errorUsername.value = 'Preencha o nome de usuário';
+      hasError = true;
+    }
+    if (nicknameController.text.trim().isEmpty) {
+      errorNickname.value = 'Preencha o apelido';
+      hasError = true;
+    }
+    if (emailController.text.trim().isEmpty) {
+      errorEmail.value = 'Preencha o email';
+      hasError = true;
+    } else if (!_emailRegex.hasMatch(emailController.text.trim())) {
+      errorEmail.value = 'Email inválido';
+      hasError = true;
+    }
+    if (passwordController.text.isEmpty) {
+      errorPassword.value = 'Preencha a senha';
+      hasError = true;
+    } else {
+      final pwdErrors = _validatePasswordRules(passwordController.text);
+      if (pwdErrors.isNotEmpty) {
+        errorPassword.value = 'Senha inválida:\n- ${pwdErrors.join('\n- ')}';
+        hasError = true;
+      }
+    }
+    if (confirmPasswordController.text.isEmpty) {
+      errorConfirmPassword.value = 'Confirme a senha';
+      hasError = true;
+    } else if (passwordController.text != confirmPasswordController.text) {
+      errorConfirmPassword.value = 'As duas senhas não estão idênticas';
+      hasError = true;
+    }
+
+    return !hasError;
   }
 
   @override
@@ -169,44 +236,4 @@ class SignupController extends GetxController {
   void toggleConfirmPasswordVisibility() {
     isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
   }
-
-  bool validateAllOnSubmit() {
-  bool hasError = false;
-
-  if (usernameController.text.trim().isEmpty) {
-    errorUsername.value = 'Preencha o nome de usuário';
-    hasError = true;
-  }
-  if (nicknameController.text.trim().isEmpty) {
-    errorNickname.value = 'Preencha o apelido';
-    hasError = true;
-  }
-  if (emailController.text.trim().isEmpty) {
-    errorEmail.value = 'Preencha o email';
-    hasError = true;
-  } else if (!_emailRegex.hasMatch(emailController.text.trim())) {
-    errorEmail.value = 'Email inválido';
-    hasError = true;
-  }
-  if (passwordController.text.isEmpty) {
-    errorPassword.value = 'Preencha a senha';
-    hasError = true;
-  } else {
-    final pwdErrors = _validatePasswordRules(passwordController.text);
-    if (pwdErrors.isNotEmpty) {
-      errorPassword.value = 'Senha inválida:\n- ${pwdErrors.join('\n- ')}';
-      hasError = true;
-    }
-  }
-  if (confirmPasswordController.text.isEmpty) {
-    errorConfirmPassword.value = 'Confirme a senha';
-    hasError = true;
-  } else if (passwordController.text != confirmPasswordController.text) {
-    errorConfirmPassword.value = 'As duas senhas não estão idênticas';
-    hasError = true;
-  }
-
-  return !hasError;
-}
-
 }

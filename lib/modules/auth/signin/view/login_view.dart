@@ -80,7 +80,7 @@ class LoginView extends GetView<LoginController> {
                 ),
                 PrimaryButton(
                   text: "Entrar",
-                  onPressed: controller.login,
+                  onPressed: controller.loginWithEmail,
                 ),
                 const SizedBox(height: 12),
                 const Row(
@@ -110,7 +110,7 @@ class LoginView extends GetView<LoginController> {
                 const SizedBox(height: 12),
                 SocialButton(
                   text: "Entrar com Google",
-                  onPressed: () {},
+                  onPressed: controller.loginWithGoogle,
                 ),
                 const SizedBox(height: 12),
                 PrimaryButton(

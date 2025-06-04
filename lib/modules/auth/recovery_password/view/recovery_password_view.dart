@@ -88,7 +88,9 @@ class ForgotPasswordView extends GetView<ForgotPasswordController> {
                         const SizedBox(height: 12),
                         PrimaryButton(
                           text: 'Cancelar',
-                          onPressed: controller.cancel,
+                          onPressed: () {
+                            Get.back(); 
+                          },
                           color: const Color.fromRGBO(242, 48, 48, 1),
                         ),
                       ],

@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:get/get.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import '../model/login_model.dart';
 
 class LoginController extends GetxController {
@@ -77,7 +79,49 @@ class LoginController extends GetxController {
     }
   }
 
+  Future<void> loginWithEmail() async {
+    try {
+      final credential = EmailAuthProvider.credential(
+        email: email.value,
+        password: password.value,
+      );
 
+      await FirebaseAuth.instance.signInWithCredential(credential);
 
+      Get.offAllNamed('/home');
+    } catch (e) {
+      print('Erro no login com email detalhado: $e');
+      Get.snackbar('Erro', 'Falha ao entrar com email',
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  }
 
+ Future<void> loginWithGoogle() async {
+  try {
+    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+    if (googleUser == null) return; 
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+    if (googleAuth.idToken == null) {
+      throw FirebaseAuthException(
+        code: 'ERROR_MISSING_ID_TOKEN',
+        message: 'Falha ao obter token do Google.',
+      );
+    }
+
+    final credential = GoogleAuthProvider.credential(
+      idToken: googleAuth.idToken!,
+      accessToken: googleAuth.accessToken,
+    );
+
+    await FirebaseAuth.instance.signInWithCredential(credential);
+
+    Get.offAllNamed('/home');
+  } catch (e) {
+    print('Erro no login com Google detalhado: $e');
+    Get.snackbar('Erro', 'Falha ao entrar com Google',
+        snackPosition: SnackPosition.BOTTOM);
+  }
+}
 }

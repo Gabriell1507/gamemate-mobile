@@ -155,6 +155,7 @@ class SignupView extends GetView<SignupController> {
                     final isValid = controller.validateAllOnSubmit();
                     if (isValid) {
                       controller.registerUser();
+                      
                     }
                   },
                 ),

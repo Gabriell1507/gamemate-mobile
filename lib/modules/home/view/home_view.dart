@@ -27,9 +27,9 @@ class HomeView extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Logo SVG GameMate
+               
                 SvgPicture.asset(
-                  'assets/gamemate_login_logo.svg', // coloque seu arquivo SVG aqui
+                  'assets/gamemate_login_logo.svg', 
                   width: 150,
                   height: 150,
                 ),
@@ -44,8 +44,8 @@ class HomeView extends StatelessWidget {
                       textCancel: "Cancelar",
                       confirmTextColor: Colors.white,
                       onConfirm: () {
-                        Get.back(); // Fecha o diálogo
-                        Get.offAllNamed('/login'); // Redireciona para login ou onde desejar
+                        Get.back(); 
+                        Get.offAllNamed('/login'); 
                       },
                     );
                   },
