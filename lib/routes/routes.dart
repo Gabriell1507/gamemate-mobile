@@ -4,6 +4,8 @@ import 'package:gamemate/modules/auth/signin/bindings/login_binding.dart';
 import 'package:gamemate/modules/auth/signin/view/login_view.dart';
 import 'package:gamemate/modules/auth/signup/bindings/signup_bindings.dart';
 import 'package:gamemate/modules/auth/signup/view/signup_view.dart';
+import 'package:gamemate/modules/games/bindings/games_binding.dart';
+import 'package:gamemate/modules/games/views/games_view.dart';
 import 'package:gamemate/modules/home/bindings/home_bindings.dart';
 import 'package:gamemate/modules/home/view/home_view.dart';
 import 'package:gamemate/modules/splash/binding/splash_binding.dart';
@@ -49,8 +51,8 @@ class AppRoute {
 
     GetPage(
       name: home,
-      page: () => HomeView(),
-      binding: HomeBindings(), 
+      page: () => GamesView(),
+      binding: GamesBinding(), 
     ),
   ];
 

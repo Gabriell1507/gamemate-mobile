@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gamemate/modules/home/controllers/home_controller.dart';
+import 'package:gamemate/modules/games/controllers/games_controller.dart';
 import 'package:get/get.dart';
 
 class HomeView extends StatelessWidget {
  HomeView({super.key});
 
-  final HomeController _homeController = Get.find<HomeController>();
+  final GamesController _controller = Get.find<GamesController>();
+
 
   @override
   Widget build(BuildContext context) {
