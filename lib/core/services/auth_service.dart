@@ -105,43 +105,43 @@ class AuthService extends GetxService {
   }
 
   Future<UserCredential> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  try {
+    final GoogleSignIn googleSignIn = GoogleSignIn();
+    await googleSignIn.signOut(); // força a escolha da conta
+    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-      if (googleUser == null) {
-        throw Exception('Login cancelado pelo usuário');
-      }
-
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final UserCredential userCredential = await _auth.signInWithCredential(credential);
-      final User? user = userCredential.user;
-
-      // Firestore desabilitado, removi a criação no Firestore
-      /*
-      if (user != null) {
-        final userDoc = await _firestore.collection('users').doc(user.uid).get();
-        if (!userDoc.exists) {
-          await _firestore.collection('users').doc(user.uid).set({
-            'email': user.email ?? '',
-            'name': user.displayName ?? '',
-            'photoURL': user.photoURL ?? '',
-            'createdAt': FieldValue.serverTimestamp(),
-            'signInMethod': 'google',
-          });
-        }
-      }
-      */
-
-      return userCredential;
-    } catch (e) {
-      throw Exception("Erro ao fazer login com Google: $e");
+    if (googleUser == null) {
+      throw Exception('Login cancelado pelo usuário');
     }
+
+    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final UserCredential userCredential = await _auth.signInWithCredential(credential);
+
+    final User? user = userCredential.user;
+    if (user != null) {
+      // final userDoc = await _firestore.collection('users').doc(user.uid).get();
+      // if (!userDoc.exists) {
+      //   await _firestore.collection('users').doc(user.uid).set({
+      //     'email': user.email ?? '',
+      //     'name': user.displayName ?? '',
+      //     'photoURL': user.photoURL ?? '',
+      //     'createdAt': FieldValue.serverTimestamp(),
+      //     'signInMethod': 'google',
+      //   });
+      // }
+    }
+
+    return userCredential;
+  } catch (e) {
+    throw Exception("Erro ao fazer login com Google: $e");
   }
+}
+
 
   Future<void> signupWithEmail({
     required String email,
