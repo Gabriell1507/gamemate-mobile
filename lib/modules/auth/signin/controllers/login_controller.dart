@@ -1,127 +1,122 @@
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:gamemate/core/services/auth_service.dart';
+import 'package:gamemate/modules/auth/signup/models/user_model.dart';
 import 'package:get/get.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import '../model/login_model.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginController extends GetxController {
+  final AuthService _authService = Get.find<AuthService>();
+
+  var isLoading = false.obs;
+
+  // Controllers para TextFields, pode manter se preferir
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+
+  // Variáveis reativas para campos de texto (usadas no onChanged da view)
   var email = ''.obs;
   var password = ''.obs;
-  var showError = false.obs;
+
+  // Variáveis para controlar erros e exibição dos mesmos
   var emailError = ''.obs;
   var passwordError = ''.obs;
+  var showError = false.obs;
+
+  // Controle da visibilidade da senha
   var obscurePassword = true.obs;
 
-  final RegExp _emailRegex = RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$");
+  void setEmail(String value) {
+    email.value = value;
+    // Validação simples do email
+    if (!GetUtils.isEmail(value)) {
+      emailError.value = 'Email inválido';
+    } else {
+      emailError.value = '';
+    }
+  }
 
-  final RegExp _passwordRegex = RegExp(r'^[A-Z](?=.*[a-z])(?=.*\d)(?=.*[!@#\$&*~]).{5,}$');
-
+  void setPassword(String value) {
+    password.value = value;
+    // Validação simples: senha deve ter pelo menos 6 caracteres
+    if (value.length < 6) {
+      passwordError.value = 'Senha deve ter ao menos 6 caracteres';
+    } else {
+      passwordError.value = '';
+    }
+  }
 
   void toggleObscure() {
     obscurePassword.value = !obscurePassword.value;
   }
 
-  void setEmail(String value) {
-    email.value = value;
-    validateEmail();
-  }
-
-  void setPassword(String value) {
-    password.value = value;
-    validatePassword();
-  }
-
-  bool validateEmail() {
-    if (!_emailRegex.hasMatch(email.value)) {
-      emailError.value = 'Email inválido';
-      return false;
-    } else {
-      emailError.value = '';
-      return true;  
-    }
-  }
-
-  bool validatePassword() {
-  final pwd = password.value;
-
-  final rules = <Map<String, dynamic>>[
-    {'regex': r'^[A-Z]', 'msg': 'começar com letra maiúscula'},
-    {'regex': r'[a-z]', 'msg': 'conter letra minúscula'},
-    {'regex': r'\d', 'msg': 'conter número'},
-    {'regex': r'[!@#\$&*~]', 'msg': 'conter caractere especial'},
-    {'check': () => pwd.length >= 6, 'msg': 'ter no mínimo 6 caracteres'},
-  ];
-
-  final errors = <String>[];
-
-  for (var rule in rules) {
-    !rule.containsKey('regex')
-        ? (rule['check']() ? null : errors.add(rule['msg']))
-        : (RegExp(rule['regex']).hasMatch(pwd) ? null : errors.add(rule['msg']));
-  }
-
-  passwordError.value =
-      errors.isNotEmpty ? 'A senha está incorreta' : 'Preencha a senha corretamente';
-  return errors.isEmpty;
-}
-
-
-  void login() {
-    final validEmail = validateEmail();
-    final validPassword = validatePassword();
-
-    if (!validEmail || !validPassword) {
-      showError.value = true;
-      return;
-    } else {
-      showError.value = false;
-
-
-    }
-  }
-
   Future<void> loginWithEmail() async {
+    // Forçar exibição dos erros na view
+    showError.value = true;
+
+    // Validar antes de continuar
+    if (email.value.isEmpty || password.value.isEmpty) {
+      if (email.value.isEmpty) emailError.value = 'Email é obrigatório';
+      if (password.value.isEmpty) passwordError.value = 'Senha é obrigatória';
+      return;
+    }
+
+    if (emailError.value.isNotEmpty || passwordError.value.isNotEmpty) {
+      // Tem erro de validação, não tenta login
+      return;
+    }
+
     try {
-      final credential = EmailAuthProvider.credential(
-        email: email.value,
+      isLoading.value = true;
+
+      User? user = await _authService.signInWithEmailAndPassword(
+        email: email.value.trim(),
         password: password.value,
       );
 
-      await FirebaseAuth.instance.signInWithCredential(credential);
-
-      Get.offAllNamed('/home');
+      if (user != null) {
+        Get.snackbar('Sucesso', 'Login realizado com sucesso');
+        // Navegação após login, se quiser
+      }
     } catch (e) {
-      print('Erro no login com email detalhado: $e');
-      Get.snackbar('Erro', 'Falha ao entrar com email',
-          snackPosition: SnackPosition.BOTTOM);
+      Get.snackbar('Erro', e.toString());
+    } finally {
+      isLoading.value = false;
     }
   }
 
- Future<void> loginWithGoogle() async {
-  try {
-    final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-    if (googleUser == null) return; 
+  Future<void> loginWithGoogle() async {
+    try {
+      isLoading.value = true;
 
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      UserCredential userCredential = await _authService.signInWithGoogle();
+      User? firebaseUser = userCredential.user;
 
-    if (googleAuth.idToken == null) {
-      throw FirebaseAuthException(
-        code: 'ERROR_MISSING_ID_TOKEN',
-        message: 'Falha ao obter token do Google.',
-      );
+      if (firebaseUser != null) {
+        UserModel userModel = UserModel(
+          uid: firebaseUser.uid,
+          username: firebaseUser.displayName ?? '',
+          nickname: '',
+          email: firebaseUser.email ?? '',
+          password: '',
+        );
+
+        await _authService.signupWithGoogle(user: firebaseUser, userModel: userModel);
+
+        Get.snackbar('Sucesso', 'Login com Google realizado');
+        // Navegue para tela principal
+      }
+    } catch (e) {
+      Get.snackbar('Erro', e.toString());
+      print('Erro ao fazer login com Google: $e');
+    } finally {
+      isLoading.value = false;
     }
-
-    final credential = GoogleAuthProvider.credential(
-      idToken: googleAuth.idToken!,
-      accessToken: googleAuth.accessToken,
-    );
-
-    await FirebaseAuth.instance.signInWithCredential(credential);
-
-    Get.offAllNamed('/home');
-  } catch (e) {
-    print('Erro no login com Google detalhado: $e');
-    Get.snackbar('Erro', 'Falha ao entrar com Google',
-        snackPosition: SnackPosition.BOTTOM);
   }
-}
+
+  @override
+  void onClose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.onClose();
+  }
 }
