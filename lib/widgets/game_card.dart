@@ -8,31 +8,19 @@ class GameCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const double cardWidth = 150;
-    const double cardHeight = 220;
+    const double cardWidth = 193;
+    const double imageHeight = 230;
 
-    return Container(
+    return SizedBox(
       width: cardWidth,
-      height: cardHeight,
-      decoration: BoxDecoration(
-        color: Colors.blueGrey[900],
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 8,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Imagem do jogo
+          // Imagem do jogo com borda arredondada
           ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            borderRadius: BorderRadius.circular(10),
             child: SizedBox(
-              height: 140,
+              height: imageHeight,
               child: Image.network(
                 game.coverImageUrl,
                 fit: BoxFit.cover,
@@ -45,35 +33,26 @@ class GameCard extends StatelessWidget {
             ),
           ),
 
-          // Espaço para o título
-          Expanded(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: const Color(0xFF0B2A47),
-                borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
-              ),
-              child: Center(
-                child: Text(
-                  game.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                    shadows: [
-                      Shadow(
-                        color: Colors.black54,
-                        blurRadius: 3,
-                        offset: Offset(0, 1),
-                      )
-                    ],
-                  ),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                ),
-              ),
+          const SizedBox(height: 8),
+
+          // Nome do jogo abaixo da imagem
+          Text(
+            game.name,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+              shadows: [
+                Shadow(
+                  color: Colors.black54,
+                  blurRadius: 3,
+                  offset: Offset(0, 1),
+                )
+              ],
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
           ),
         ],
       ),
