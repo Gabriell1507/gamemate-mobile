@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gamemate/routes/routes.dart';
 import 'package:get/get.dart';
 
@@ -8,14 +9,23 @@ class SplashController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    _timer = Timer(const Duration(seconds: 3), () {
-      Get.offNamed(AppRoute.login);  // redireciona para a rota de login após 3 segundos
-    });
+    _timer = Timer(const Duration(seconds: 3), _checkAuth);
+  }
+
+  void _checkAuth() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // Usuário autenticado, vai para Home
+      Get.offNamed(AppRoute.home);
+    } else {
+      // Usuário não autenticado, vai para Login
+      Get.offNamed(AppRoute.login);
+    }
   }
 
   @override
   void onClose() {
-    _timer?.cancel();  // cancela o timer se a splash for fechada antes do tempo
+    _timer?.cancel();
     super.onClose();
   }
 }

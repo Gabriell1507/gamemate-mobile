@@ -36,7 +36,9 @@ class _GamesViewState extends State<GamesView> {
               children: [
                 SvgPicture.asset('assets/gamemate_login_logo.svg', height: 46),
                 const SizedBox(height: 16),
-
+                ElevatedButton(onPressed: () {
+                  Get.toNamed('/login');
+                }, child: const Text('Sair')),
                 // Seção: Especiais da semana com dois divisores
                 const Row(
                   children:  [
