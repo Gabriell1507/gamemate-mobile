@@ -44,6 +44,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   dio: ^5.8.0+1
   carousel_slider: ^5.1.1
+  flutter_launcher_icons: ^0.14.3
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +57,12 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
 
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/gamemate_icon.png"  # Caminho para a sua logo
+  adaptive_icon_background: "#001f3f"  # Cor de fundo para Android (opcional)
+  
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -70,6 +77,8 @@ flutter:
     - assets/gamemate_login_logo.svg
     - assets/google-icon.png
     - assets/gamepad.svg
+    - assets/gamemate_logo.png
+    - assets/gamemate_icon.png
 
     - .env
 
