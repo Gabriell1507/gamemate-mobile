@@ -16,7 +16,7 @@ class ApiService {
       final response = await _dio.get('/games/search', queryParameters: {'q': query});
       final List data = response.data as List;
       return data.map((e) => IGDBGame.fromJson(e)).toList();
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       print('DioError status: ${dioError.response?.statusCode}');
       print('DioError data: ${dioError.response?.data}');
       print('DioError message: ${dioError.message}');
@@ -32,7 +32,7 @@ class ApiService {
       final response = await _dio.get('/games/featured');
       final List data = response.data as List;
       return data.map((e) => IGDBGame.fromJson(e)).toList();
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       print('DioError status: ${dioError.response?.statusCode}');
       print('DioError data: ${dioError.response?.data}');
       print('DioError message: ${dioError.message}');

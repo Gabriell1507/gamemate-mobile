@@ -5,7 +5,9 @@ import 'package:gamemate/modules/auth/signin/view/login_view.dart';
 import 'package:gamemate/modules/auth/signup/bindings/signup_bindings.dart';
 import 'package:gamemate/modules/auth/signup/view/signup_view.dart';
 import 'package:gamemate/modules/games/bindings/games_binding.dart';
+import 'package:gamemate/modules/games/bindings/search_games_result_binding.dart';
 import 'package:gamemate/modules/games/views/games_view.dart';
+import 'package:gamemate/modules/games/views/search_games_results_view.dart';
 import 'package:gamemate/modules/home/bindings/home_bindings.dart';
 import 'package:gamemate/modules/home/view/home_view.dart';
 import 'package:gamemate/modules/splash/binding/splash_binding.dart';
@@ -23,6 +25,8 @@ class AppRoute {
 
   //Home
   static String home = '/home';
+
+  static String resultPage = '/result-page';
   
   static List<GetPage> pages = [
     GetPage(
@@ -53,6 +57,12 @@ class AppRoute {
       name: home,
       page: () => GamesView(),
       binding: GamesBinding(), 
+    ),
+
+    GetPage(
+      name: resultPage,
+      page: () => const SearchResultsView(),
+      binding: SearchResultsBinding(),
     ),
   ];
 

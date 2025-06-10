@@ -5,7 +5,8 @@ import '../data/providers/games_provider.dart';
 class GamesController extends GetxController {
   final ApiService _apiService = ApiService();
 
-  final RxList<IGDBGame> games = <IGDBGame>[].obs;
+  final RxList<IGDBGame> featuredGames = <IGDBGame>[].obs;
+  final RxList<IGDBGame> searchResults = <IGDBGame>[].obs;
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
@@ -20,7 +21,7 @@ class GamesController extends GetxController {
     errorMessage.value = '';
     try {
       final result = await _apiService.searchGames(query);
-      games.assignAll(result);
+      searchResults.assignAll(result);  // <-- resultado da busca separado
     } catch (e) {
       errorMessage.value = 'Erro ao buscar jogos.';
     } finally {
@@ -33,7 +34,7 @@ class GamesController extends GetxController {
     errorMessage.value = '';
     try {
       final result = await _apiService.getFeaturedGames();
-      games.assignAll(result);
+      featuredGames.assignAll(result);  // <-- jogos em destaque
     } catch (e) {
       errorMessage.value = 'Erro ao buscar jogos em destaque.';
     } finally {

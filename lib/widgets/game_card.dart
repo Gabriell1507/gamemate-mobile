@@ -9,7 +9,7 @@ class GameCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const double cardWidth = 193;
-    const double imageHeight = 230;
+    const double imageHeight = 250;
 
     return SizedBox(
       width: cardWidth,

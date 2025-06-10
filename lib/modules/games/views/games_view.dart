@@ -15,9 +15,40 @@ class GamesView extends StatefulWidget {
 
 class _GamesViewState extends State<GamesView> {
   final GamesController _controller = Get.find<GamesController>();
+  final TextEditingController _searchController = TextEditingController();
 
   static const double _carouselItemWidth = 150;
   static const double _carouselItemHeight = 220;
+
+  Future<void> _onSearchSubmitted(String query) async {
+    if (query.trim().isEmpty) return;
+
+    _controller.isLoading.value = true;
+    await _controller.searchGames(query.trim());
+    _controller.isLoading.value = false;
+
+    _searchController.clear();
+
+    if (_controller.searchResults.isEmpty) {
+      Get.snackbar(
+        'Nenhum resultado',
+        'Nenhum jogo encontrado para "$query"',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } else {
+      Get.toNamed('/result-page', arguments: {
+        'results': _controller.searchResults.toList(),
+        'query': query.trim(),
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +67,33 @@ class _GamesViewState extends State<GamesView> {
               children: [
                 SvgPicture.asset('assets/gamemate_login_logo.svg', height: 46),
                 const SizedBox(height: 16),
-                ElevatedButton(onPressed: () {
-                  Get.toNamed('/login');
-                }, child: const Text('Sair')),
+
+                // === BARRA DE BUSCA ===
+                TextField(
+                  controller: _searchController,
+                  textInputAction: TextInputAction.search,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Pesquisar jogos...',
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    prefixIcon: const Icon(Icons.search, color: Colors.white),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                  ),
+                  onSubmitted: _onSearchSubmitted,
+                ),
+
+                const SizedBox(height: 16),
+
                 // Seção: Especiais da semana com dois divisores
                 const Row(
-                  children:  [
+                  children: [
                     SizedBox(
                       width: 20,
                       child: Divider(
@@ -127,6 +179,10 @@ class _GamesViewState extends State<GamesView> {
                             textAlign: TextAlign.center,
                           ),
                         ),
+                        ElevatedButton(
+                          onPressed: () => Get.toNamed('/login'),
+                          child: const Text('Sair'),
+                        ),
                       ],
                     ),
                   ),
@@ -139,28 +195,28 @@ class _GamesViewState extends State<GamesView> {
     );
   }
 
-Widget _buildSpecialsCarousel() {
-  return CarouselSlider.builder(
-    itemCount: _controller.games.length,
-    itemBuilder: (context, index, realIndex) {
-      final game = _controller.games[index];
+  Widget _buildSpecialsCarousel() {
+    return CarouselSlider.builder(
+      itemCount: _controller.featuredGames.length,
+      itemBuilder: (context, index, realIndex) {
+        final game = _controller.featuredGames[index];
 
-      return Container(
-        width: _carouselItemWidth,
-        margin: const EdgeInsets.symmetric(horizontal: 8),
-        child: GameCard(game: game),
-      );
-    },
-    options: CarouselOptions(
-      height: 310,
-      enlargeCenterPage: false,
-      viewportFraction: 0.5,
-      enableInfiniteScroll: true,
-      autoPlay: true,
-      autoPlayInterval: const Duration(seconds: 4),
-      autoPlayAnimationDuration: const Duration(milliseconds: 800),
-      autoPlayCurve: Curves.linear,
-    ),
-  );
-}
+        return Container(
+          width: _carouselItemWidth,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          child: GameCard(game: game),
+        );
+      },
+      options: CarouselOptions(
+        height: 310,
+        enlargeCenterPage: false,
+        viewportFraction: 0.5,
+        enableInfiniteScroll: true,
+        autoPlay: true,
+        autoPlayInterval: const Duration(seconds: 4),
+        autoPlayAnimationDuration: const Duration(milliseconds: 800),
+        autoPlayCurve: Curves.linear,
+      ),
+    );
+  }
 }
