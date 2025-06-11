@@ -113,7 +113,7 @@ class AuthService extends GetxService {
     }
   }
 
-  /// 🔐 Cria usuário no Firebase e registra no backend
+  
   Future<void> signupWithEmail({
     required String email,
     required String password,
@@ -134,7 +134,7 @@ class AuthService extends GetxService {
     }
   }
 
-  /// 🔐 Registra usuário Google no backend
+  
   Future<void> signupWithGoogle({
     required User user,
     required UserModel userModel,
@@ -153,8 +153,7 @@ class AuthService extends GetxService {
     }
   }
 
-  /// 🌐 Chamada ao backend para registrar usuário no banco local
-  Future<void> _registerUserLocally({
+   Future<void> _registerUserLocally({
     required User user,
     required String username,
   }) async {
@@ -168,15 +167,15 @@ class AuthService extends GetxService {
       });
 
       if (response.statusCode == 201) {
-        print('✅ Usuário registrado localmente com sucesso: ${response.data}');
+        print(' Usuário registrado localmente com sucesso: ${response.data}');
       } else {
-        print('⚠️ Erro ao registrar usuário localmente: ${response.statusCode}');
+        print(' Erro ao registrar usuário localmente: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      print('❌ Erro Dio: ${e.response?.data ?? e.message}');
+      print(' Erro Dio: ${e.response?.data ?? e.message}');
       rethrow;
     } catch (e) {
-      print('❌ Erro inesperado ao registrar usuário localmente: $e');
+      print(' Erro inesperado ao registrar usuário localmente: $e');
       rethrow;
     }
   }
