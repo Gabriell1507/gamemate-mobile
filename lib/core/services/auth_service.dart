@@ -1,12 +1,19 @@
+import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gamemate/modules/auth/signup/models/user_model.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class AuthService extends GetxService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  // Firestore desabilitado
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: dotenv.env['API_URL_DEV'] ?? '',
+      connectTimeout: const Duration(seconds: 10),
+      receiveTimeout: const Duration(seconds: 10),
+    ),
+  )..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
   final Rx<User?> _currentUser = Rx<User?>(null);
   User? get currentUser => _currentUser.value;
@@ -46,10 +53,7 @@ class AuthService extends GetxService {
   Future<void> deleteUser() async {
     try {
       final user = _auth.currentUser;
-
       if (user != null) {
-        // Firestore desabilitado, então removi a exclusão do documento no Firestore
-        // await _firestore.collection('users').doc(uid).delete();
         await user.delete();
       } else {
         throw Exception("Usuário não autenticado.");
@@ -80,69 +84,36 @@ class AuthService extends GetxService {
         email: email.trim(),
         password: password,
       );
-      final User? user = userCredential.user;
-
-      // Firestore desabilitado, removi as operações de consulta e criação no Firestore
-      /*
-      if (user != null) {
-        final userDoc = await _firestore.collection('users').doc(user.uid).get();
-        if (!userDoc.exists) {
-          await _firestore.collection('users').doc(user.uid).set({
-            'email': user.email ?? '',
-            'name': user.displayName ?? '',
-            'photoURL': user.photoURL ?? '',
-            'createdAt': FieldValue.serverTimestamp(),
-            'signInMethod': 'email',
-          });
-        }
-      }
-      */
-
-      return user;
+      return userCredential.user;
     } on FirebaseAuthException catch (e) {
       throw Exception("Erro ao fazer login: ${e.message}");
     }
   }
 
   Future<UserCredential> signInWithGoogle() async {
-  try {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    await googleSignIn.signOut(); // força a escolha da conta
-    final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      await googleSignIn.signOut(); // força seleção de conta
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
-    if (googleUser == null) {
-      throw Exception('Login cancelado pelo usuário');
+      if (googleUser == null) {
+        throw Exception('Login cancelado pelo usuário');
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      return userCredential;
+    } catch (e) {
+      throw Exception("Erro ao fazer login com Google: $e");
     }
-
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    final UserCredential userCredential = await _auth.signInWithCredential(credential);
-
-    final User? user = userCredential.user;
-    if (user != null) {
-      // final userDoc = await _firestore.collection('users').doc(user.uid).get();
-      // if (!userDoc.exists) {
-      //   await _firestore.collection('users').doc(user.uid).set({
-      //     'email': user.email ?? '',
-      //     'name': user.displayName ?? '',
-      //     'photoURL': user.photoURL ?? '',
-      //     'createdAt': FieldValue.serverTimestamp(),
-      //     'signInMethod': 'google',
-      //   });
-      // }
-    }
-
-    return userCredential;
-  } catch (e) {
-    throw Exception("Erro ao fazer login com Google: $e");
   }
-}
 
-
+  /// 🔐 Cria usuário no Firebase e registra no backend
   Future<void> signupWithEmail({
     required String email,
     required String password,
@@ -153,34 +124,60 @@ class AuthService extends GetxService {
         email: email.trim(),
         password: password,
       );
-      final User? user = userCredential.user;
 
-      // Firestore desabilitado, removi a criação do documento
-      /*
+      final User? user = userCredential.user;
       if (user != null) {
-        final updatedUserModel = userModel.copyWith(uid: user.uid);
-        await _firestore.collection('users').doc(user.uid).set(updatedUserModel.toJson());
+        await _registerUserLocally(user: user, username: userModel.username);
       }
-      */
     } on FirebaseAuthException catch (e) {
       throw Exception("Erro ao cadastrar: ${e.message}");
     }
   }
 
+  /// 🔐 Registra usuário Google no backend
   Future<void> signupWithGoogle({
     required User user,
     required UserModel userModel,
   }) async {
     try {
-      // Firestore desabilitado, removi a criação do documento
-      /*
-      final updatedUserModel = userModel.copyWith(uid: user.uid);
-      await _firestore.collection('users').doc(user.uid).set(updatedUserModel.toJson());
-      */
+      final UserCredential credential = await signInWithGoogle();
+      final user = credential.user;
+
+      if (user != null) {
+        await _registerUserLocally(user: user, username: userModel.username);
+      }
     } on FirebaseAuthException catch (e) {
       throw Exception("Erro ao cadastrar com Google: ${e.message}");
     } catch (e) {
       throw Exception("Erro ao cadastrar com Google: $e");
+    }
+  }
+
+  /// 🌐 Chamada ao backend para registrar usuário no banco local
+  Future<void> _registerUserLocally({
+    required User user,
+    required String username,
+  }) async {
+    try {
+      final idToken = await user.getIdToken();
+      print('🔑 ID Token: $idToken');
+
+      final response = await _dio.post('/auth/register', data: {
+        "idToken": idToken,
+        "username": username,
+      });
+
+      if (response.statusCode == 201) {
+        print('✅ Usuário registrado localmente com sucesso: ${response.data}');
+      } else {
+        print('⚠️ Erro ao registrar usuário localmente: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print('❌ Erro Dio: ${e.response?.data ?? e.message}');
+      rethrow;
+    } catch (e) {
+      print('❌ Erro inesperado ao registrar usuário localmente: $e');
+      rethrow;
     }
   }
 }
