@@ -83,10 +83,13 @@ class GameDetailView extends GetView<GameDetailController> {
 
               // Data de lançamento
               Text(
-  'Lançamento: ${controller.formatReleaseDate(game.firstReleaseDate)}',
-  style: const TextStyle(color: Colors.white70, fontSize: 14),
-),
-
+                'Lançamento: ${controller.formatReleaseDate(game.firstReleaseDate)}',
+                style: const TextStyle(color: Colors.white70, fontSize: 14),
+              ),
+              Text('Desenvolvedor: ${game.developer}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 14)),
+              Text('Publicadora: ${game.publisher}',
+                  style: const TextStyle(color: Colors.white70, fontSize: 14)),
 
               const SizedBox(height: 16),
 

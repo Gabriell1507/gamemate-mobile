@@ -58,6 +58,8 @@ class IGDBGame {
   final IGDBImage cover;
   final int firstReleaseDate;
   final double totalRating;
+  final String developer;
+  final String publisher;
   final List<IGDBGenre> genres;
   final List<IGDBPlatform> platforms;
   final List<IGDBImage> screenshots;
@@ -69,6 +71,8 @@ class IGDBGame {
     required this.cover,
     required this.firstReleaseDate,
     required this.totalRating,
+    required this.developer,
+    required this.publisher,
     required this.genres,
     required this.platforms,
     required this.screenshots,
@@ -91,6 +95,12 @@ class IGDBGame {
               .map((e) => IGDBGenre.fromJson(e))
               .toList()
           : [],
+      developer: json['developers'] != null && (json['developers'] as List).isNotEmpty
+          ? (json['developers'] as List).map((e) => e['name'] as String).join(', ')
+          : '',
+      publisher: json['publishers'] != null && (json['publishers'] as List).isNotEmpty
+          ? (json['publishers'] as List).map((e) => e['name'] as String).join(', ')
+          : '',
       platforms: json['platforms'] != null
           ? (json['platforms'] as List)
               .map((e) => IGDBPlatform.fromJson(e))
