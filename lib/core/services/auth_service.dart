@@ -152,31 +152,40 @@ class AuthService extends GetxService {
       throw Exception("Erro ao cadastrar com Google: $e");
     }
   }
+  
 
    Future<void> _registerUserLocally({
-    required User user,
-    required String username,
-  }) async {
-    try {
-      final idToken = await user.getIdToken();
-      print('🔑 ID Token: $idToken');
+  required User user,
+  required String username,
+}) async {
+  try {
+    final idToken = await user.getIdToken();
+    print('ID Token: $idToken');
 
-      final response = await _dio.post('/auth/register', data: {
-        "idToken": idToken,
-        "username": username,
-      });
+    final response = await _dio.post('/auth/register', data: {
+      "idToken": idToken,
+      "username": username,
+    });
 
-      if (response.statusCode == 201) {
-        print(' Usuário registrado localmente com sucesso: ${response.data}');
-      } else {
-        print(' Erro ao registrar usuário localmente: ${response.statusCode}');
-      }
-    } on DioException catch (e) {
-      print(' Erro Dio: ${e.response?.data ?? e.message}');
-      rethrow;
-    } catch (e) {
-      print(' Erro inesperado ao registrar usuário localmente: $e');
-      rethrow;
+    if (response.statusCode == 201) {
+      print('Usuário registrado localmente com sucesso: ${response.data}');
+    } else {
+      print('Resposta inesperada: ${response.statusCode}');
     }
+  } on DioException catch (e) {
+    final statusCode = e.response?.statusCode;
+
+    if (statusCode == 409) {
+      print('Usuário já existe no backend. Prosseguir com login normalmente.');
+      
+      return;
+    }
+
+    print('Erro Dio: ${e.response?.data ?? e.message}');
+    rethrow;
+  } catch (e) {
+    print('Erro inesperado ao registrar usuário localmente: $e');
+    rethrow;
   }
+}
 }

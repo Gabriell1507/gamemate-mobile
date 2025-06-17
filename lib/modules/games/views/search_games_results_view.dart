@@ -72,7 +72,7 @@ class SearchResultsView extends GetView<SearchResultsController> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      childAspectRatio: 0.6, // largura / altura ≈ 0.839
+                      childAspectRatio: 0.6, 
                     ),
                     itemCount: results.length,
                     itemBuilder: (context, index) {
