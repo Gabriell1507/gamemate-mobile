@@ -8,6 +8,8 @@ import 'package:gamemate/modules/games/bindings/games_binding.dart';
 import 'package:gamemate/modules/games/bindings/search_games_result_binding.dart';
 import 'package:gamemate/modules/games/views/games_view.dart';
 import 'package:gamemate/modules/games/views/search_games_results_view.dart';
+import 'package:gamemate/modules/games_detail/bindings/game_detail_binding.dart';
+import 'package:gamemate/modules/games_detail/view/game_detail_view.dart';
 import 'package:gamemate/modules/home/bindings/home_bindings.dart';
 import 'package:gamemate/modules/home/view/home_view.dart';
 import 'package:gamemate/modules/splash/binding/splash_binding.dart';
@@ -27,6 +29,8 @@ class AppRoute {
   static String home = '/home';
 
   static String resultPage = '/result-page';
+  
+  static String gameDetail = '/game-detail';
   
   static List<GetPage> pages = [
     GetPage(
@@ -63,6 +67,12 @@ class AppRoute {
       name: resultPage,
       page: () => const SearchResultsView(),
       binding: SearchResultsBinding(),
+    ),
+
+    GetPage(
+      name: gameDetail,
+      page: () => const GameDetailView(),
+      binding: GameDetailBinding(),
     ),
   ];
 

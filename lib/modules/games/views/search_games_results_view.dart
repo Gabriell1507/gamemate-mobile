@@ -67,7 +67,8 @@ class SearchResultsView extends GetView<SearchResultsController> {
                 const SizedBox(height: 16),
                 Expanded(
                   child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
@@ -76,9 +77,10 @@ class SearchResultsView extends GetView<SearchResultsController> {
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final game = results[index];
-                      return SizedBox(
-                        width: 193,
-                        height: 230,
+                      return GestureDetector(
+                        onTap: () {
+                          Get.toNamed('/game-detail', arguments: game);
+                        },
                         child: GameCard(game: game),
                       );
                     },

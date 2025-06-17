@@ -195,28 +195,46 @@ class _GamesViewState extends State<GamesView> {
     );
   }
 
-  Widget _buildSpecialsCarousel() {
-    return CarouselSlider.builder(
-      itemCount: _controller.featuredGames.length,
-      itemBuilder: (context, index, realIndex) {
-        final game = _controller.featuredGames[index];
+Widget _buildSpecialsCarousel() {
+  return CarouselSlider.builder(
+    itemCount: _controller.featuredGames.length,
+    itemBuilder: (context, index, realIndex) {
+      final game = _controller.featuredGames[index];
 
-        return Container(
+      return GestureDetector(
+        onTap: () async {
+          final query = game.name;
+
+          _controller.isLoading.value = true;
+          try {
+            await _controller.searchGames(query);
+            _controller.isLoading.value = false;
+
+            if (_controller.searchResults.isNotEmpty) {
+              Get.toNamed('/game-detail', arguments: _controller.searchResults.first);
+            }
+          } catch (e) {
+            _controller.isLoading.value = false;
+            print('Erro no onTap do carrossel: $e');
+          }
+        },
+        child: Container(
           width: _carouselItemWidth,
           margin: const EdgeInsets.symmetric(horizontal: 8),
           child: GameCard(game: game),
-        );
-      },
-      options: CarouselOptions(
-        height: 310,
-        enlargeCenterPage: false,
-        viewportFraction: 0.5,
-        enableInfiniteScroll: true,
-        autoPlay: true,
-        autoPlayInterval: const Duration(seconds: 4),
-        autoPlayAnimationDuration: const Duration(milliseconds: 800),
-        autoPlayCurve: Curves.linear,
-      ),
-    );
-  }
+        ),
+      );
+    },
+    options: CarouselOptions(
+      height: 310,
+      enlargeCenterPage: false,
+      viewportFraction: 0.5,
+      enableInfiniteScroll: true,
+      autoPlay: true,
+      autoPlayInterval: const Duration(seconds: 4),
+      autoPlayAnimationDuration: const Duration(milliseconds: 800),
+      autoPlayCurve: Curves.linear,
+    ),
+  );
+}
 }
