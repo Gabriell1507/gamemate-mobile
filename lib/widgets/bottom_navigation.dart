@@ -15,13 +15,32 @@ class CustomBottomBar extends StatefulWidget {
 }
 
 class _CustomBottomBarState extends State<CustomBottomBar> {
+  int _getIndexByRoute(String? route) {
+  switch (route) {
+    case '/friends':
+      return 0;
+    case '/library':
+      return 1;
+    case '/home':
+      return 2;
+    case '/stats':
+      return 3;
+    case '/profile':
+      return 4;
+    default:
+      return 2;
+  }
+}
+
   late int selectedIndex;
 
-  @override
-  void initState() {
-    super.initState();
-    selectedIndex = widget.initialIndex;
-  }
+ @override
+void initState() {
+  super.initState();
+  final currentRoute = Get.currentRoute;
+  selectedIndex = _getIndexByRoute(currentRoute);
+}
+
 
   void onTabChange(int index) {
     setState(() {
@@ -30,22 +49,22 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
 
     switch (index) {
       case 0:
-        Get.toNamed('/login');
+        Get.offNamed('/login');
         break;
       case 1:
-        Get.toNamed('/login');
+        Get.offNamed('/login');
         break;
       case 2:
-        Get.toNamed('/home');
+        Get.offNamed('/home');
         break;
       case 3:
-        Get.toNamed('/login');
+        Get.offNamed('/login');
         break;
       case 4:
-        Get.toNamed('/profile');
+        Get.offNamed('/profile');
         break;
       default:
-        Get.toNamed('/home');
+        Get.offNamed('/profile');
     }
   }
 
