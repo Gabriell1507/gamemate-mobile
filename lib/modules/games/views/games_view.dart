@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gamemate/core/services/auth_service.dart';
 import 'package:gamemate/widgets/game_card.dart';
 import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -180,7 +181,11 @@ class _GamesViewState extends State<GamesView> {
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: () => Get.toNamed('/login'),
+                          onPressed: () async {
+                            final authService = Get.find<AuthService>();
+                            await authService.signOut();
+                            Get.offAllNamed('/login');
+                          },
                           child: const Text('Sair'),
                         ),
                       ],
