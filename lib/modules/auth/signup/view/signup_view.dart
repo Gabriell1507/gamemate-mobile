@@ -151,11 +151,17 @@ class SignupView extends GetView<SignupController> {
                 const SizedBox(height: 20),
                 PrimaryButton(
                   text: 'Cadastrar',
-                  onPressed: () {
+                  onPressed: () async {
                     final isValid = controller.validateAllOnSubmit();
                     if (isValid) {
-                      controller.registerUser();
+                      try {
+                        await controller.registerUser();
+                        Get.offNamed(
+                            '/login'); 
+                      } catch (e) {
                       
+                        Get.snackbar('Erro', e.toString());
+                      }
                     }
                   },
                 ),

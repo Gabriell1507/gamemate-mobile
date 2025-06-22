@@ -75,7 +75,8 @@ class LoginController extends GetxController {
 
       if (user != null) {
         Get.snackbar('Sucesso', 'Login realizado com sucesso');
-        // Navegação após login, se quiser
+        Get.toNamed('/home');
+
       }
     } catch (e) {
       Get.snackbar('Erro', e.toString());
