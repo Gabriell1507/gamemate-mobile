@@ -119,17 +119,17 @@ class GameDetailView extends GetView<GameDetailController> {
               const SizedBox(height: 16),
 
               // Plataformas
-if (game.platforms.isNotEmpty) ...[
-  const Text(
-    'Plataformas:',
-    style: TextStyle(
-      color: Colors.white,
-      fontSize: 16,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-  const SizedBox(height: 8),
- Wrap(
+              if (game.platforms.isNotEmpty) ...[
+                const Text(
+                  'Plataformas:',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: game.platforms
@@ -140,7 +140,7 @@ if (game.platforms.isNotEmpty) ...[
                           ))
                       .toList(),
                 ),
-],
+              ],
 
               const SizedBox(height: 20),
 
