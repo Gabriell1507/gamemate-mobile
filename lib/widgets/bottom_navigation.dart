@@ -52,7 +52,7 @@ void initState() {
         Get.offNamed('/login');
         break;
       case 1:
-        Get.offNamed('/login');
+        Get.offNamed('/library');
         break;
       case 2:
         Get.offNamed('/home');

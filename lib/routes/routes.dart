@@ -10,8 +10,8 @@ import 'package:gamemate/modules/games/views/games_view.dart';
 import 'package:gamemate/modules/games/views/search_games_results_view.dart';
 import 'package:gamemate/modules/games_detail/bindings/game_detail_binding.dart';
 import 'package:gamemate/modules/games_detail/view/game_detail_view.dart';
-import 'package:gamemate/modules/home/bindings/home_bindings.dart';
-import 'package:gamemate/modules/home/view/home_view.dart';
+import 'package:gamemate/modules/library/bindings/library_binding.dart';
+import 'package:gamemate/modules/library/view/library_view.dart';
 import 'package:gamemate/modules/profile/bindings/profile_binding.dart';
 import 'package:gamemate/modules/profile/views/profile_page.dart';
 import 'package:gamemate/modules/splash/binding/splash_binding.dart';
@@ -35,6 +35,8 @@ class AppRoute {
   static String gameDetail = '/game-detail';
 
   static String profile = '/profile';
+
+  static String library = '/library';
   
   static List<GetPage> pages = [
     GetPage(
@@ -83,6 +85,12 @@ class AppRoute {
       name: '/profile',
       page: () =>  ProfilePage(),
       binding: ProfileBinding(),
+    ),
+
+    GetPage(
+      name: '/library',
+      page: () => const LibraryView(),
+      binding: LibraryBinding(),
     ),
   ];
 
