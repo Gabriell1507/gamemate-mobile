@@ -16,7 +16,6 @@ class IGDBImage {
   }
 }
 
-
 class IGDBGenre {
   final int id;
   final String name;
@@ -36,17 +35,17 @@ class IGDBGenre {
 
 class IGDBPlatform {
   final int id;
-  final String abbreviation;
+  final String name;
 
   IGDBPlatform({
     required this.id,
-    required this.abbreviation,
+    required this.name,
   });
 
   factory IGDBPlatform.fromJson(Map<String, dynamic> json) {
     return IGDBPlatform(
       id: json['id'] ?? 0,
-      abbreviation: json['abbreviation'] ?? '',
+      name: json['name'] ?? '',
     );
   }
 }
@@ -91,15 +90,19 @@ class IGDBGame {
           ? (json['total_rating'] as num).toDouble()
           : 0.0,
       genres: json['genres'] != null
-          ? (json['genres'] as List)
-              .map((e) => IGDBGenre.fromJson(e))
-              .toList()
+          ? (json['genres'] as List).map((e) => IGDBGenre.fromJson(e)).toList()
           : [],
-      developer: json['developers'] != null && (json['developers'] as List).isNotEmpty
-          ? (json['developers'] as List).map((e) => e['name'] as String).join(', ')
+      developer: json['involved_companies'] != null
+          ? (json['involved_companies'] as List)
+              .where((e) => e['developer'] == true && e['company'] != null)
+              .map((e) => (e['company']?['name'] ?? '') as String)
+              .join(', ')
           : '',
-      publisher: json['publishers'] != null && (json['publishers'] as List).isNotEmpty
-          ? (json['publishers'] as List).map((e) => e['name'] as String).join(', ')
+      publisher: json['involved_companies'] != null
+          ? (json['involved_companies'] as List)
+              .where((e) => e['publisher'] == true && e['company'] != null)
+              .map((e) => (e['company']?['name'] ?? '') as String)
+              .join(', ')
           : '',
       platforms: json['platforms'] != null
           ? (json['platforms'] as List)

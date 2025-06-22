@@ -68,25 +68,25 @@ class _GamesViewState extends State<GamesView> {
                 const SizedBox(height: 16),
 
                 // === BARRA DE BUSCA ===
-                // TextField(
-                //   controller: _searchController,
-                //   textInputAction: TextInputAction.search,
-                //   style: const TextStyle(color: Colors.white),
-                //   decoration: InputDecoration(
-                //     hintText: 'Pesquisar jogos...',
-                //     hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                //     prefixIcon: const Icon(Icons.search, color: Colors.white),
-                //     filled: true,
-                //     fillColor: Colors.white.withOpacity(0.1),
-                //     border: OutlineInputBorder(
-                //       borderRadius: BorderRadius.circular(30),
-                //       borderSide: BorderSide.none,
-                //     ),
-                //     contentPadding:
-                //         const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                //   ),
-                //   onSubmitted: _onSearchSubmitted,
-                // ),
+                TextField(
+                  controller: _searchController,
+                  textInputAction: TextInputAction.search,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'Pesquisar jogos...',
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                    prefixIcon: const Icon(Icons.search, color: Colors.white),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.1),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    contentPadding:
+                        const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                  ),
+                  onSubmitted: _onSearchSubmitted,
+                ),
 
                 const SizedBox(height: 16),
 

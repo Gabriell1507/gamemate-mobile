@@ -119,27 +119,28 @@ class GameDetailView extends GetView<GameDetailController> {
               const SizedBox(height: 16),
 
               // Plataformas
-              if (game.platforms.isNotEmpty) ...[
-                const Text(
-                  'Plataformas:',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
+if (game.platforms.isNotEmpty) ...[
+  const Text(
+    'Plataformas:',
+    style: TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+  const SizedBox(height: 8),
+ Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: game.platforms
-                      .map((p) => Chip(
-                            label: Text(p.abbreviation),
+                      .map((g) => Chip(
+                            label: Text(g.name),
                             backgroundColor: Color.fromRGBO(34, 132, 230, 1),
                             labelStyle: const TextStyle(color: Colors.white),
                           ))
                       .toList(),
                 ),
-              ],
+],
 
               const SizedBox(height: 20),
 
