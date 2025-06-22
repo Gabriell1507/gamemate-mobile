@@ -48,6 +48,7 @@ dependencies:
   http: ^1.4.0
   translator: ^1.0.3+1
   intl: ^0.20.2
+  awesome_bottom_bar: ^1.2.4
 
 dev_dependencies:
   flutter_test:
@@ -82,6 +83,7 @@ flutter:
     - assets/gamepad.svg
     - assets/gamemate_logo.png
     - assets/gamemate_icon.png
+    - assets/icons/
 
     - .env
 

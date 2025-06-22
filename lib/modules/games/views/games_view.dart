@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gamemate/core/services/auth_service.dart';
+import 'package:gamemate/widgets/bottom_navigation.dart';
 import 'package:gamemate/widgets/game_card.dart';
 import 'package:get/get.dart';
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:gamemate/modules/games/data/models/games_model.dart';
+import 'package:gamemate/widgets/featured_carousel.dart';
 import '../controllers/games_controller.dart';
 
 class GamesView extends StatefulWidget {
@@ -18,8 +18,6 @@ class _GamesViewState extends State<GamesView> {
   final GamesController _controller = Get.find<GamesController>();
   final TextEditingController _searchController = TextEditingController();
 
-  static const double _carouselItemWidth = 150;
-  static const double _carouselItemHeight = 220;
 
   Future<void> _onSearchSubmitted(String query) async {
     if (query.trim().isEmpty) return;
@@ -70,25 +68,25 @@ class _GamesViewState extends State<GamesView> {
                 const SizedBox(height: 16),
 
                 // === BARRA DE BUSCA ===
-                TextField(
-                  controller: _searchController,
-                  textInputAction: TextInputAction.search,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: 'Pesquisar jogos...',
-                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
-                    prefixIcon: const Icon(Icons.search, color: Colors.white),
-                    filled: true,
-                    fillColor: Colors.white.withOpacity(0.1),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-                  ),
-                  onSubmitted: _onSearchSubmitted,
-                ),
+                // TextField(
+                //   controller: _searchController,
+                //   textInputAction: TextInputAction.search,
+                //   style: const TextStyle(color: Colors.white),
+                //   decoration: InputDecoration(
+                //     hintText: 'Pesquisar jogos...',
+                //     hintStyle: TextStyle(color: Colors.white.withOpacity(0.7)),
+                //     prefixIcon: const Icon(Icons.search, color: Colors.white),
+                //     filled: true,
+                //     fillColor: Colors.white.withOpacity(0.1),
+                //     border: OutlineInputBorder(
+                //       borderRadius: BorderRadius.circular(30),
+                //       borderSide: BorderSide.none,
+                //     ),
+                //     contentPadding:
+                //         const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                //   ),
+                //   onSubmitted: _onSearchSubmitted,
+                // ),
 
                 const SizedBox(height: 16),
 
@@ -123,7 +121,7 @@ class _GamesViewState extends State<GamesView> {
 
                 const SizedBox(height: 12),
 
-                _buildSpecialsCarousel(),
+                FeaturedCarousel(controller: _controller),
 
                 const SizedBox(height: 20),
 
@@ -181,13 +179,10 @@ class _GamesViewState extends State<GamesView> {
                           ),
                         ),
                         ElevatedButton(
-                          onPressed: () async {
-                            final authService = Get.find<AuthService>();
-                            await authService.signOut();
-                            Get.offAllNamed('/login');
-                          },
+                          onPressed: () => Get.toNamed('/login'),
                           child: const Text('Sair'),
                         ),
+                        const SizedBox(height: 30),
                       ],
                     ),
                   ),
@@ -197,49 +192,9 @@ class _GamesViewState extends State<GamesView> {
           }),
         ),
       ),
+      bottomNavigationBar: const CustomBottomBar(),
+
     );
   }
 
-Widget _buildSpecialsCarousel() {
-  return CarouselSlider.builder(
-    itemCount: _controller.featuredGames.length,
-    itemBuilder: (context, index, realIndex) {
-      final game = _controller.featuredGames[index];
-
-      return GestureDetector(
-        onTap: () async {
-          final query = game.name;
-
-          _controller.isLoading.value = true;
-          try {
-            await _controller.searchGames(query);
-            _controller.isLoading.value = false;
-
-            if (_controller.searchResults.isNotEmpty) {
-              Get.toNamed('/game-detail', arguments: _controller.searchResults.first);
-            }
-          } catch (e) {
-            _controller.isLoading.value = false;
-            print('Erro no onTap do carrossel: $e');
-          }
-        },
-        child: Container(
-          width: _carouselItemWidth,
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          child: GameCard(game: game),
-        ),
-      );
-    },
-    options: CarouselOptions(
-      height: 310,
-      enlargeCenterPage: false,
-      viewportFraction: 0.5,
-      enableInfiniteScroll: true,
-      autoPlay: true,
-      autoPlayInterval: const Duration(seconds: 4),
-      autoPlayAnimationDuration: const Duration(milliseconds: 800),
-      autoPlayCurve: Curves.linear,
-    ),
-  );
-}
 }
