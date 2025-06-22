@@ -101,7 +101,10 @@ class LoginController extends GetxController {
           password: '',
         );
 
-        await _authService.signupWithGoogle(user: firebaseUser, userModel: userModel);
+         await _authService.signupWithGoogle(
+    user: firebaseUser,
+    userModel: userModel,
+  );
 
         Get.snackbar('Sucesso', 'Login com Google realizado');
         Get.toNamed('/home'); // Navegue para a tela principal

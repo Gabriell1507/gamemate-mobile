@@ -101,31 +101,26 @@ class SignupController extends GetxController {
   }
 
   Future<void> loginWithGoogle() async {
-    try {
-      isLoading.value = true;
+  UserCredential userCredential = await _authService.signInWithGoogle();
+User? firebaseUser = userCredential.user;
 
-      UserCredential userCredential = await _authService.signInWithGoogle();
-      User? firebaseUser = userCredential.user;
+if (firebaseUser != null) {
+  UserModel userModel = UserModel(
+    uid: firebaseUser.uid,
+    username: firebaseUser.displayName ?? '',
+    nickname: '',
+    email: firebaseUser.email ?? '',
+    password: '',
+  );
 
-      if (firebaseUser != null) {
-        UserModel userModel = UserModel(
-          uid: firebaseUser.uid,
-          username: firebaseUser.displayName ?? '',
-          nickname: '',
-          email: firebaseUser.email ?? '',
-          password: '',
-        );
+  await _authService.signupWithGoogle(
+    user: firebaseUser,
+    userModel: userModel,
+  );
+}
 
-        await _authService.signupWithGoogle(user: firebaseUser, userModel: userModel);
-      }
 
-      Get.snackbar('Sucesso', 'Login com Google realizado');
-    } catch (e) {
-      Get.snackbar('Erro', e.toString());
-    } finally {
-      isLoading.value = false;
-    }
-  }
+
 
   @override
   void onClose() {
@@ -136,4 +131,5 @@ class SignupController extends GetxController {
     confirmPasswordController.dispose();
     super.onClose();
   }
+}
 }
