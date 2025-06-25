@@ -4,12 +4,14 @@ class UserProfileModel {
   final String id;
   final String email;
   final String? name;
+  final String? username;
   final List<LinkedAccountModel> linkedAccounts;
 
   UserProfileModel({
     required this.id,
     required this.email,
     this.name,
+    this.username,
     required this.linkedAccounts,
   });
 
@@ -18,6 +20,7 @@ class UserProfileModel {
       id: map['id'] ?? '',
       email: map['email'] ?? '',
       name: map['name'],
+      username: map['username'],
       linkedAccounts: map['linkedAccounts'] != null
           ? List<LinkedAccountModel>.from(
               map['linkedAccounts'].map((x) => LinkedAccountModel.fromMap(x)))
