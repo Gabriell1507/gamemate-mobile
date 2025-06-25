@@ -1,3 +1,4 @@
+import 'package:gamemate/modules/games/controllers/games_controller.dart';
 import 'package:gamemate/modules/profile/controllers/profile_controller.dart';
 import 'package:gamemate/modules/profile/data/providers/profile_provider.dart';
 import 'package:get/get.dart';
@@ -19,5 +20,6 @@ class ProfileBinding extends Bindings {
     Get.lazyPut<Dio>(() => dio);
     Get.lazyPut<ProfileProvider>(() => ProfileProvider(Get.find<Dio>()));
     Get.lazyPut<ProfileController>(() => ProfileController(Get.find<ProfileProvider>()));
+        Get.lazyPut<GamesController>(() => GamesController());
   }
 }

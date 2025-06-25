@@ -90,7 +90,7 @@ class AppRoute {
     GetPage(
       name: '/library',
       page: () => const LibraryView(),
-      binding: LibraryBinding(),
+      binding: ProfileBinding(),
     ),
   ];
 
