@@ -50,6 +50,7 @@ dependencies:
   intl: ^0.20.2
   awesome_bottom_bar: ^1.2.4
   url_launcher: ^6.3.1
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -65,8 +66,8 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/gamemate_icon.png"  # Caminho para a sua logo
-  adaptive_icon_background: "#001f3f"  # Cor de fundo para Android (opcional)
+  image_path: "assets/gamemate_logo_mobile.png"  # Caminho para a sua logo
+  adaptive_icon_background: "#040f1a" 
   
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -85,6 +86,7 @@ flutter:
     - assets/gamemate_logo.png
     - assets/gamemate_icon.png
     - assets/icons/
+    - assets/platforms/
 
     - .env
 
