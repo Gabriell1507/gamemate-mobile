@@ -1,5 +1,6 @@
 import 'package:awesome_bottom_bar/awesome_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:gamemate/core/services/auth_service.dart';
 import 'package:get/get.dart';
 
 class CustomBottomBar extends StatefulWidget {
@@ -16,41 +17,43 @@ class CustomBottomBar extends StatefulWidget {
 
 class _CustomBottomBarState extends State<CustomBottomBar> {
   int _getIndexByRoute(String? route) {
-  switch (route) {
-    case '/friends':
-      return 0;
-    case '/library':
-      return 1;
-    case '/home':
-      return 2;
-    case '/stats':
-      return 3;
-    case '/profile':
-      return 4;
-    default:
-      return 2;
+    switch (route) {
+      case '/friends':
+        return 0;
+      case '/library':
+        return 1;
+      case '/home':
+        return 2;
+      case '/stats':
+        return 3;
+      case '/profile':
+        return 4;
+      default:
+        return 2;
+    }
   }
-}
 
   late int selectedIndex;
 
- @override
-void initState() {
-  super.initState();
-  final currentRoute = Get.currentRoute;
-  selectedIndex = _getIndexByRoute(currentRoute);
-}
+  @override
+  void initState() {
+    super.initState();
+    final currentRoute = Get.currentRoute;
+    selectedIndex = _getIndexByRoute(currentRoute);
+  }
 
-
-  void onTabChange(int index) {
+  Future<void> onTabChange(int index) async {
     setState(() {
       selectedIndex = index;
     });
 
     switch (index) {
       case 0:
-        Get.offNamed('/login');
+        final authService = Get.find<AuthService>();
+        await authService.signOut();
+        Get.offAllNamed('/login');
         break;
+
       case 1:
         Get.offNamed('/library');
         break;
@@ -58,7 +61,8 @@ void initState() {
         Get.offNamed('/home');
         break;
       case 3:
-        Get.offNamed('/login');
+        Get.offAllNamed('/login');
+
         break;
       case 4:
         Get.offNamed('/profile');
@@ -71,11 +75,11 @@ void initState() {
   @override
   Widget build(BuildContext context) {
     final List<TabItem> items = [
-      TabItem(icon: Icons.group, title: 'Amigos'),
-      TabItem(icon: Icons.library_books, title: 'Biblioteca'),
-      TabItem(icon: Icons.home, title: 'Home'),
-      TabItem(icon: Icons.bar_chart, title: 'Estatística'),
-      TabItem(icon: Icons.person, title: 'Perfil'),
+      const TabItem(icon: Icons.group, title: 'Amigos'),
+      const TabItem(icon: Icons.library_books, title: 'Biblioteca'),
+      const TabItem(icon: Icons.home, title: 'Home'),
+      const TabItem(icon: Icons.bar_chart, title: 'Estatística'),
+      const TabItem(icon: Icons.person, title: 'Perfil'),
     ];
 
     return BottomBarDefault(

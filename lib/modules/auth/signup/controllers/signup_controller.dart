@@ -16,11 +16,9 @@ class SignupController extends GetxController {
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmPasswordController = TextEditingController();
 
-  // Campos para controlar visibilidade da senha
   RxBool isPasswordVisible = false.obs;
   RxBool isConfirmPasswordVisible = false.obs;
 
-  // Campos para armazenar mensagens de erro de validação
   RxString errorUsername = ''.obs;
   RxString errorNickname = ''.obs;
   RxString errorEmail = ''.obs;
@@ -35,7 +33,6 @@ class SignupController extends GetxController {
     isConfirmPasswordVisible.value = !isConfirmPasswordVisible.value;
   }
 
-  // Validação simples dos campos
   bool validateAllOnSubmit() {
     bool valid = true;
 
@@ -75,11 +72,13 @@ class SignupController extends GetxController {
   }
 
   Future<void> registerUser() async {
+    if (!validateAllOnSubmit()) return;
+
     try {
       isLoading.value = true;
 
       final newUser = UserModel(
-        uid: '', // vazio no cadastro inicial
+        uid: '',
         username: usernameController.text.trim(),
         nickname: nicknameController.text.trim(),
         email: emailController.text.trim(),
@@ -93,34 +92,43 @@ class SignupController extends GetxController {
       );
 
       Get.snackbar('Sucesso', 'Cadastro realizado com sucesso');
+      Get.offAllNamed('/home');
     } catch (e) {
-      Get.snackbar('Erro', e.toString());
+      Get.snackbar('Erro', e.toString().replaceAll('Exception:', '').trim());
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> loginWithGoogle() async {
-  UserCredential userCredential = await _authService.signInWithGoogle();
-User? firebaseUser = userCredential.user;
+    try {
+      isLoadingGoogle.value = true;
 
-if (firebaseUser != null) {
-  UserModel userModel = UserModel(
-    uid: firebaseUser.uid,
-    username: firebaseUser.displayName ?? '',
-    nickname: '',
-    email: firebaseUser.email ?? '',
-    password: '',
-  );
+      UserCredential userCredential = await _authService.signInWithGoogle();
+      User? firebaseUser = userCredential.user;
 
-  await _authService.signupWithGoogle(
-    user: firebaseUser,
-    userModel: userModel,
-  );
-}
+      if (firebaseUser != null) {
+        UserModel userModel = UserModel(
+          uid: firebaseUser.uid,
+          username: firebaseUser.displayName ?? '',
+          nickname: '',
+          email: firebaseUser.email ?? '',
+          password: '',
+        );
 
+        await _authService.signupWithGoogle(
+          user: firebaseUser,
+          userModel: userModel,
+        );
 
-
+        Get.offAllNamed('/home');
+      }
+    } catch (e) {
+      Get.snackbar('Erro', e.toString().replaceAll('Exception:', '').trim());
+    } finally {
+      isLoadingGoogle.value = false;
+    }
+  }
 
   @override
   void onClose() {
@@ -131,5 +139,4 @@ if (firebaseUser != null) {
     confirmPasswordController.dispose();
     super.onClose();
   }
-}
 }

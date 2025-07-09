@@ -10,13 +10,14 @@ class AuthService extends GetxService {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: dotenv.env['API_URL_DEV'] ?? '',
-      connectTimeout: const Duration(seconds: 10),
-      receiveTimeout: const Duration(seconds: 10),
+      connectTimeout: const Duration(seconds: 20),
+      receiveTimeout: const Duration(seconds: 20),
     ),
   )..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
   final Rx<User?> _currentUser = Rx<User?>(null);
   User? get currentUser => _currentUser.value;
+  final RxBool isLoading = false.obs;
 
   @override
   void onInit() {
@@ -26,53 +27,11 @@ class AuthService extends GetxService {
 
   Future<void> signOut() async {
     try {
+      await GoogleSignIn().signOut();
       await _auth.signOut();
       _currentUser.value = null;
     } catch (e) {
       throw Exception("Erro ao sair: $e");
-    }
-  }
-
-  Future<void> reloadUser() async {
-    try {
-      await _auth.currentUser?.reload();
-      _currentUser.value = _auth.currentUser;
-    } catch (e) {
-      throw Exception("Erro ao atualizar o usuário: $e");
-    }
-  }
-
-  Future<void> sendPasswordResetEmail({required String email}) async {
-    try {
-      await _auth.sendPasswordResetEmail(email: email.trim());
-    } catch (e) {
-      throw Exception("Erro ao enviar e-mail de recuperação: $e");
-    }
-  }
-
-  Future<void> deleteUser() async {
-    try {
-      final user = _auth.currentUser;
-      if (user != null) {
-        await user.delete();
-      } else {
-        throw Exception("Usuário não autenticado.");
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'requires-recent-login') {
-        throw FirebaseAuthException(
-          code: e.code,
-          message:
-              "Reautenticação necessária. Por favor, faça login novamente.",
-        );
-      } else {
-        throw FirebaseAuthException(
-          code: e.code,
-          message: "Erro ao excluir o usuário: ${e.message}",
-        );
-      }
-    } catch (e) {
-      throw Exception("Erro ao excluir o usuário: $e");
     }
   }
 
@@ -88,14 +47,14 @@ class AuthService extends GetxService {
       );
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
-      throw Exception("Erro ao fazer login: ${e.message}");
+      throw Exception(e.message ?? "Erro ao fazer login.");
     }
   }
 
   Future<UserCredential> signInWithGoogle() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut(); // força seleção de conta
+      await googleSignIn.signOut();
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
       if (googleUser == null) {
@@ -131,28 +90,14 @@ class AuthService extends GetxService {
 
       final User? user = userCredential.user;
       if (user != null) {
-        final idToken = await user.getIdToken();
-
-        try {
-          final response = await _dio.get(
-            '/users/me',
-            options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-          );
-
-          if (response.statusCode == 200) {
-            print('Usuário já existe no backend. Ignorando registro.');
-            return;
-          }
-        } on DioException catch (e) {
-          if (e.response?.statusCode != 404) {
-            rethrow;
-          }
-        }
-
         await _registerUserLocally(user: user, username: userModel.username);
       }
     } on FirebaseAuthException catch (e) {
-      throw Exception("Erro ao cadastrar: ${e.message}");
+      if (e.code == 'email-already-in-use') {
+        throw Exception("Email já cadastrado. Faça login para continuar.");
+      } else {
+        throw Exception(e.message ?? "Erro ao cadastrar.");
+      }
     }
   }
 
@@ -163,7 +108,6 @@ class AuthService extends GetxService {
     try {
       final idToken = await user.getIdToken();
 
-      // Verifica se o usuário já existe
       try {
         final response = await _dio.get(
           '/users/me',
@@ -192,7 +136,6 @@ class AuthService extends GetxService {
   }) async {
     try {
       final idToken = await user.getIdToken();
-      print('ID Token: $idToken');
 
       final response = await _dio.post('/auth/register', data: {
         "idToken": idToken,
@@ -200,25 +143,74 @@ class AuthService extends GetxService {
       });
 
       if (response.statusCode == 201) {
-        print('Usuário registrado localmente com sucesso: ${response.data}');
+        print('Usuário registrado localmente: ${response.data}');
       } else {
         print('Resposta inesperada: ${response.statusCode}');
       }
     } on DioException catch (e) {
-      final statusCode = e.response?.statusCode;
-
-      if (statusCode == 409) {
-        print(
-            'Usuário já existe no backend. Prosseguir com login normalmente.');
-
+      if (e.response?.statusCode == 409) {
+        print('Usuário já existe no backend.');
         return;
       }
-
-      print('Erro Dio: ${e.response?.data ?? e.message}');
-      rethrow;
-    } catch (e) {
-      print('Erro inesperado ao registrar usuário localmente: $e');
       rethrow;
     }
   }
+  Future<void> deleteAccount() async {
+  // try {
+  //   isLoading(true);
+  //   print('Iniciando exclusão da conta...');
+
+  //   final user = _auth.currentUser;
+  //   if (user == null) {
+  //     print('Nenhum usuário logado encontrado.');
+  //     Get.snackbar('Erro', 'Usuário não está logado.');
+  //     return;
+  //   }
+
+  //   await user.delete();
+  //   print('Conta deletada com sucesso.');
+
+  //   await signOut();
+  //   print('Usuário deslogado com sucesso.');
+
+  //   Get.offAllNamed('/login'); // ajuste a rota conforme seu app
+  //   print('Navegando para a tela de login.');
+  // } on FirebaseAuthException catch (e) {
+  //   print('Erro ao tentar deletar conta: [${e.code}] ${e.message}');
+  //   if (e.code == 'requires-recent-login') {
+  //     print('Tentando reautenticar via Google Sign-In...');
+
+  //     try {
+  //       final googleUser = await GoogleSignIn().signIn();
+  //       if (googleUser == null) {
+  //         Get.snackbar('Erro', 'Reautenticação cancelada pelo usuário.');
+  //         return;
+  //       }
+
+  //       final googleAuth = await googleUser.authentication;
+  //       final credential = GoogleAuthProvider.credential(
+  //         accessToken: googleAuth.accessToken,
+  //         idToken: googleAuth.idToken,
+  //       );
+
+  //       await _auth.currentUser?.reauthenticateWithCredential(credential);
+  //       print('Reautenticação via Google concluída. Tentando excluir novamente...');
+        
+  //       await deleteAccount(); // tenta deletar novamente após reautenticar
+  //     } catch (reauthError) {
+  //       print('Erro na reautenticação: $reauthError');
+  //       Get.snackbar('Erro', 'Falha na reautenticação. Por favor, faça login novamente.');
+  //     }
+  //   } else {
+  //     Get.snackbar('Erro', e.message ?? 'Erro ao excluir conta');
+  //   }
+  // } catch (e) {
+  //   print('Erro inesperado ao deletar conta: $e');
+  //   Get.snackbar('Erro', 'Erro inesperado ao excluir conta');
+  // } finally {
+  //   isLoading(false);
+  //   print('Processo de exclusão finalizado.');
+  // }
+}
+
 }

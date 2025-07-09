@@ -106,7 +106,7 @@ class _LibraryViewState extends State<LibraryView> {
                               crossAxisSpacing: 12,
                               mainAxisSpacing: 12,
                               childAspectRatio: SteamGameCard.cardWidth /
-                                  (SteamGameCard.imageHeight + 60),
+                                  (SteamGameCard.imageHeight + 90),
                             ),
                             itemCount: games.length,
                             itemBuilder: (context, index) {

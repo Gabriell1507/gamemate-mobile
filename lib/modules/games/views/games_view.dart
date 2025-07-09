@@ -178,11 +178,7 @@ class _GamesViewState extends State<GamesView> {
                             textAlign: TextAlign.center,
                           ),
                         ),
-                        ElevatedButton(
-                          onPressed: () => Get.toNamed('/login'),
-                          child: const Text('Sair'),
-                        ),
-                        const SizedBox(height: 30),
+                      
                       ],
                     ),
                   ),

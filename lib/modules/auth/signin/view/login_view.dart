@@ -80,7 +80,7 @@ class LoginView extends GetView<LoginController> {
                 ),
                 PrimaryButton(
                   text: "Entrar",
-                  onPressed: controller.loginWithEmail,
+                   onPressed: controller.loginWithEmail,
                 ),
                 const SizedBox(height: 12),
                 const Row(
