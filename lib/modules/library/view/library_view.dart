@@ -109,17 +109,21 @@ class _LibraryViewState extends State<LibraryView> {
                             itemCount: games.length,
                             itemBuilder: (context, index) {
                               final game = games[index];
+                              // Ajusta coverUrl para URL completa se começar com //
+                              final coverUrl = (game.coverUrl != null && game.coverUrl!.startsWith('//'))
+                                  ? 'https:${game.coverUrl}'
+                                  : (game.coverUrl ?? '');
+
                               return SteamGameCard(
                                 name: game.name,
-                                coverUrl: game.coverUrl,
+                                coverUrl: coverUrl,
                                 onTap: () {
-  if (game.id.isEmpty) {
-    Get.snackbar('Erro', 'UUID do jogo não encontrado.');
-    return;
-  }
-  Get.toNamed('/game-detail', arguments: {'uuid': game.id});
-},
-
+                                  if (game.id.isEmpty) {
+                                    Get.snackbar('Erro', 'UUID do jogo não encontrado.');
+                                    return;
+                                  }
+                                  Get.toNamed('/game-detail', arguments: {'uuid': game.id});
+                                },
                               );
                             },
                           ),

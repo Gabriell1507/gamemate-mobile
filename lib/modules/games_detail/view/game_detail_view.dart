@@ -68,18 +68,40 @@ class GameDetailsView extends GetView<GameDetailsController> {
                 Text('🛠️ Desenvolvedores: ${game.developers!.join(', ')}', style: const TextStyle(color: Colors.white)),
               if (game.publishers != null && game.publishers!.isNotEmpty)
                 Text('📦 Publicadoras: ${game.publishers!.join(', ')}', style: const TextStyle(color: Colors.white)),
-              if (game.isOwned) ...[
-                const SizedBox(height: 12),
-                const Divider(color: Colors.white),
-                const SizedBox(height: 8),
-                const Text('🎮 Você possui este jogo', style: TextStyle(color: Colors.white)),
-                if (game.playtimeMinutes != null)
-                  Text('⏱️ Tempo de jogo: ${Duration(minutes: game.playtimeMinutes!).inHours}h',
-                      style: const TextStyle(color: Colors.white)),
-                if (game.lastPlayedAt != null)
-                  Text('📆 Último jogado em: ${game.lastPlayedAt!.toLocal().toString().split(' ')[0]}',
-                      style: const TextStyle(color: Colors.white)),
-              ]
+
+              const SizedBox(height: 20),
+
+              // Botão condicional
+              Obx(() {
+                if (controller.isOwned.value) {
+                  return Chip(
+                    label: Text(
+                      'Na Biblioteca',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Colors.green,
+                  );
+                } else {
+                  return ElevatedButton(
+                    onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF2284E6),
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                    ),
+                    child: controller.isAdding.value
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Adicionar à Biblioteca'),
+                  );
+                }
+              }),
             ],
           ),
         );
