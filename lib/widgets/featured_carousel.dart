@@ -1,8 +1,9 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:gamemate/modules/games/controllers/games_controller.dart';
+import 'package:gamemate/modules/games/data/providers/games_provider.dart';
 import 'package:get/get.dart';
 import 'package:gamemate/widgets/game_card.dart';
+import 'package:gamemate/modules/games/controllers/games_controller.dart';
 
 class FeaturedCarousel extends StatelessWidget {
   final GamesController controller;
@@ -20,22 +21,23 @@ class FeaturedCarousel extends StatelessWidget {
 
         return GestureDetector(
           onTap: () async {
-            final query = game.name;
+  controller.isLoading.value = true;
+  try {
+    final uuid = await ApiService().resolveGameId(igdbId: game.id.toString());
+    controller.isLoading.value = false;
 
-            controller.isLoading.value = true;
-            try {
-              await controller.searchGames(query);
-              controller.isLoading.value = false;
+    if (uuid.isNotEmpty) {
+      Get.toNamed('/game-detail', arguments: {'uuid': uuid});
+    } else {
+      Get.snackbar('Erro', 'UUID não encontrado para o jogo.');
+    }
+  } catch (e) {
+    controller.isLoading.value = false;
+    print('Erro no onTap do carrossel: $e');
+    Get.snackbar('Erro', 'Não foi possível abrir os detalhes do jogo.');
+  }
+},
 
-              if (controller.searchResults.isNotEmpty) {
-                Get.toNamed('/game-detail',
-                    arguments: controller.searchResults.first);
-              }
-            } catch (e) {
-              controller.isLoading.value = false;
-              print('Erro no onTap do carrossel: $e');
-            }
-          },
           child: Container(
             width: _carouselItemWidth,
             margin: const EdgeInsets.symmetric(horizontal: 8),

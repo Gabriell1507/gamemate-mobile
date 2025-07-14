@@ -74,12 +74,13 @@ class AppRoute {
       page: () => const SearchResultsView(),
       binding: SearchResultsBinding(),
     ),
+GetPage(
+  name: '/game-detail',
+  page: () => const GameDetailsView(),
+  binding: GameDetailsBinding(),
+),
 
-    GetPage(
-      name: gameDetail,
-      page: () => const GameDetailView(),
-      binding: GameDetailBinding(),
-    ),
+
 
     GetPage(
       name: '/profile',

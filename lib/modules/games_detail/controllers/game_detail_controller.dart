@@ -1,31 +1,43 @@
-import 'package:gamemate/modules/games/data/models/games_model.dart';
+import 'package:flutter/widgets.dart';
+import 'package:gamemate/modules/games/data/models/games_detail_model.dart';
+import 'package:gamemate/modules/games/data/providers/games_provider.dart';
 import 'package:get/get.dart';
-import 'package:translator/translator.dart';
-import 'package:intl/intl.dart';
 
-class GameDetailController extends GetxController {
-  final IGDBGame game;
-  final RxString translatedSummary = ''.obs;
+class GameDetailsController extends GetxController {
+  final ApiService _apiService = ApiService();
 
-  GameDetailController(this.game);
+  final isLoading = true.obs;
+  final gameDetails = Rxn<GameDetailsModel>();
 
-  @override
-  void onInit() {
-    super.onInit();
-    _translateSummary();
-  }
+@override
+void onInit() {
+  super.onInit();
 
-  String formatReleaseDate(int unixTimestampSeconds) {
-    final date =
-        DateTime.fromMillisecondsSinceEpoch(unixTimestampSeconds * 1000);
-    return DateFormat('dd/MM/yyyy').format(date);
-  }
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final rawUuid = Get.arguments != null ? Get.arguments['uuid'] : null;
+    final uuid = rawUuid?.toString();
 
-  Future<void> _translateSummary() async {
-    if (game.summary.isEmpty) return;
-    final translator = GoogleTranslator();
-    final translation =
-        await translator.translate(game.summary, from: 'en', to: 'pt');
-    translatedSummary.value = translation.text;
+    if (uuid == null || uuid.isEmpty) {
+      Get.snackbar('Erro', 'UUID não fornecido.');
+      Get.back();
+      return;
+    }
+
+    await fetchGameDetails(uuid);
+  });
+}
+
+
+  Future<void> fetchGameDetails(String uuid) async {
+    try {
+      isLoading.value = true;
+      final details = await _apiService.getGameDetails(uuid);
+      gameDetails.value = details;
+    } catch (e) {
+      Get.snackbar('Erro', 'Erro ao carregar detalhes do jogo');
+      Get.back();
+    } finally {
+      isLoading.value = false;
+    }
   }
 }

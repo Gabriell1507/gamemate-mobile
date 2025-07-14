@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gamemate/modules/games/data/models/games_detail_model.dart';
 import '../models/games_model.dart';
 
 class ApiService {
@@ -11,21 +12,18 @@ class ApiService {
     ),
   )..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
-  Future<List<IGDBGame>> searchGames(String query) async {
-    try {
-      final response = await _dio.get('/games/search', queryParameters: {'q': query});
-      final List data = response.data as List;
-      return data.map((e) => IGDBGame.fromJson(e)).toList();
-    } on DioException catch (dioError) {
-      print('DioError status: ${dioError.response?.statusCode}');
-      print('DioError data: ${dioError.response?.data}');
-      print('DioError message: ${dioError.message}');
-      rethrow;
-    } catch (e) {
-      print('Erro: $e');
-      rethrow;
-    }
+Future<List<IGDBGame>> searchGames(String query) async {
+  try {
+    final response = await _dio.get('/games/search', queryParameters: {'q': query});
+    print('Resposta API searchGames: ${response.data}');
+    final List data = response.data as List;
+    return data.map((e) => IGDBGame.fromJson(e)).toList();
+  } on DioException catch (dioError) {
+    rethrow;
   }
+}
+
+
 
   Future<List<IGDBGame>> getFeaturedGames() async {
     try {
@@ -33,12 +31,32 @@ class ApiService {
       final List data = response.data as List;
       return data.map((e) => IGDBGame.fromJson(e)).toList();
     } on DioException catch (dioError) {
-      print('DioError status: ${dioError.response?.statusCode}');
-      print('DioError data: ${dioError.response?.data}');
-      print('DioError message: ${dioError.message}');
       rethrow;
+    }
+  }
+
+  Future<String> resolveGameId({String? igdbId, String? steamAppId}) async {
+    try {
+      final response = await _dio.get('/games/resolve', queryParameters: {
+        if (igdbId != null) 'igdbId': igdbId,
+        if (steamAppId != null) 'steamAppId': steamAppId,
+      });
+      return response.data['id'];
     } catch (e) {
-      print('Erro: $e');
+      rethrow;
+    }
+  }
+
+  Future<GameDetailsModel> getGameDetails(String uuid, {String? idToken}) async {
+    try {
+      final response = await _dio.get(
+        '/games/$uuid',
+        options: Options(
+          headers: idToken != null ? {'Authorization': 'Bearer $idToken'} : null,
+        ),
+      );
+      return GameDetailsModel.fromJson(response.data);
+    } catch (e) {
       rethrow;
     }
   }

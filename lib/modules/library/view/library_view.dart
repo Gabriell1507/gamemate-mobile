@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:gamemate/modules/profile/controllers/profile_controller.dart';
 import 'package:gamemate/widgets/bottom_navigation.dart';
 import 'package:gamemate/widgets/steam_game_card.dart';
-import 'package:gamemate/modules/games/controllers/games_controller.dart';
 
 class LibraryView extends StatefulWidget {
   const LibraryView({super.key});
@@ -15,7 +14,6 @@ class LibraryView extends StatefulWidget {
 
 class _LibraryViewState extends State<LibraryView> {
   final ProfileController profileController = Get.find<ProfileController>();
-  final GamesController gamesController = Get.find<GamesController>();
 
   @override
   void initState() {
@@ -114,18 +112,14 @@ class _LibraryViewState extends State<LibraryView> {
                               return SteamGameCard(
                                 name: game.name,
                                 coverUrl: game.coverUrl,
-                                onTap: () async {
-                                  try {
-                                    await gamesController.searchGames(game.name);
-                                    if (gamesController.searchResults.isNotEmpty) {
-                                      Get.toNamed('/game-detail',
-                                          arguments:
-                                              gamesController.searchResults.first);
-                                    }
-                                  } catch (e) {
-                                    print('Erro no onTap do card: $e');
-                                  }
-                                },
+                                onTap: () {
+  if (game.id.isEmpty) {
+    Get.snackbar('Erro', 'UUID do jogo não encontrado.');
+    return;
+  }
+  Get.toNamed('/game-detail', arguments: {'uuid': game.id});
+},
+
                               );
                             },
                           ),
