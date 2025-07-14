@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gamemate/modules/games/controllers/search_games_result_controller.dart';
+import 'package:gamemate/modules/games/data/providers/games_provider.dart';
 import 'package:get/get.dart';
 import '../../../widgets/game_card.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 
 class SearchResultsView extends GetView<SearchResultsController> {
   const SearchResultsView({super.key});
@@ -72,14 +74,30 @@ class SearchResultsView extends GetView<SearchResultsController> {
                       crossAxisCount: 2,
                       mainAxisSpacing: 12,
                       crossAxisSpacing: 12,
-                      childAspectRatio: 0.6, 
+                      childAspectRatio: 0.6,
                     ),
                     itemCount: results.length,
                     itemBuilder: (context, index) {
                       final game = results[index];
                       return GestureDetector(
-                        onTap: () {
-                          Get.toNamed('/game-detail', arguments: game);
+                        onTap: () async {
+                          try {
+                            controller.isLoading.value = true;
+                            final uuid = await ApiService()
+                                .resolveGameId(igdbId: game.id.toString());
+                            controller.isLoading.value = false;
+
+                            if (uuid.isNotEmpty) {
+                              Get.toNamed('/game-detail', arguments: {'uuid': uuid});
+                            } else {
+                              Get.snackbar('Erro', 'UUID não encontrado para o jogo.');
+                            }
+                          } catch (e) {
+                            controller.isLoading.value = false;
+                            print('Erro no onTap do carrossel: $e');
+                            Get.snackbar(
+                                'Erro', 'Não foi possível abrir os detalhes do jogo.');
+                          }
                         },
                         child: GameCard(game: game),
                       );

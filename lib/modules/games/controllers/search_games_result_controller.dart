@@ -4,6 +4,7 @@ import '../../games/data/models/games_model.dart';
 class SearchResultsController extends GetxController {
   final RxList<IGDBGame> searchResults = <IGDBGame>[].obs;
   final RxString query = ''.obs;
+  final RxBool isLoading = false.obs;  // <-- adicionado
 
   @override
   void onInit() {

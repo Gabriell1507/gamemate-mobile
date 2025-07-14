@@ -20,28 +20,29 @@ class _GamesViewState extends State<GamesView> {
 
 
   Future<void> _onSearchSubmitted(String query) async {
-    if (query.trim().isEmpty) return;
+  if (query.trim().isEmpty) return;
 
-    _controller.isLoading.value = true;
-    await _controller.searchGames(query.trim());
-    _controller.isLoading.value = false;
+  _controller.isLoading.value = true;
+  await _controller.searchGames(query.trim());
+  _controller.isLoading.value = false;
 
-    _searchController.clear();
-
-    if (_controller.searchResults.isEmpty) {
-      Get.snackbar(
-        'Nenhum resultado',
-        'Nenhum jogo encontrado para "$query"',
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } else {
-      Get.toNamed('/result-page', arguments: {
-        'results': _controller.searchResults.toList(),
-        'query': query.trim(),
-      });
-    }
+  if (_controller.searchResults.isEmpty) {
+    Get.snackbar(
+      'Nenhum resultado',
+      'Nenhum jogo encontrado para "$query"',
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } else {
+    // Passa lista como argumento para a próxima tela
+    Get.toNamed('/result-page', arguments: {
+      'results': _controller.searchResults.toList(),
+      'query': query.trim(),
+    });
   }
+
+  _searchController.clear();
+}
 
   @override
   void dispose() {
