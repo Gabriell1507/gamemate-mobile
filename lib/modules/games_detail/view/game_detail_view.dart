@@ -8,104 +8,217 @@ class GameDetailsView extends GetView<GameDetailsController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Detalhes do Jogo'),
-        backgroundColor: const Color(0xFF001F3F),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Get.back(),
+        ),
       ),
-      backgroundColor: const Color(0xFF001F3F),
-      body: Obx(() {
-        if (controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator(color: Colors.white));
-        }
-
-        final game = controller.gameDetails.value;
-        if (game == null) {
-          return const Center(
-            child: Text('Erro ao carregar o jogo.', style: TextStyle(color: Colors.white)),
-          );
-        }
-
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (game.coverUrl != null)
-                Center(
-                  child: Image.network(
-                    game.coverUrl!.startsWith('http') ? game.coverUrl! : 'https:${game.coverUrl!}',
-                    height: 250,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const Center(child: CircularProgressIndicator(color: Colors.white));
-                    },
-                  ),
-                ),
-              const SizedBox(height: 16),
-              Text(
-                game.name,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-              ),
-              if (game.summary != null) ...[
-                const SizedBox(height: 8),
-                Text(game.summary!, style: const TextStyle(color: Colors.white70)),
-              ],
-              const SizedBox(height: 8),
-              if (game.rating != null)
-                Text('⭐ Nota: ${game.rating!.toStringAsFixed(1)}', style: const TextStyle(color: Colors.white)),
-              if (game.releaseDate != null)
-                Text('📅 Lançamento: ${game.releaseDate!.toLocal().toString().split(' ')[0]}',
-                    style: const TextStyle(color: Colors.white)),
-              if (game.genres != null && game.genres!.isNotEmpty)
-                Text('🎮 Gêneros: ${game.genres!.join(', ')}', style: const TextStyle(color: Colors.white)),
-              if (game.platforms != null && game.platforms!.isNotEmpty)
-                Text('🖥️ Plataformas: ${game.platforms!.join(', ')}', style: const TextStyle(color: Colors.white)),
-              if (game.developers != null && game.developers!.isNotEmpty)
-                Text('🛠️ Desenvolvedores: ${game.developers!.join(', ')}', style: const TextStyle(color: Colors.white)),
-              if (game.publishers != null && game.publishers!.isNotEmpty)
-                Text('📦 Publicadoras: ${game.publishers!.join(', ')}', style: const TextStyle(color: Colors.white)),
-
-              const SizedBox(height: 20),
-
-              // Botão condicional
-              Obx(() {
-                if (controller.isOwned.value) {
-                  return Chip(
-                    label: Text(
-                      'Na Biblioteca',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: Colors.green,
-                  );
-                } else {
-                  return ElevatedButton(
-                    onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2284E6),
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                    ),
-                    child: controller.isAdding.value
-                        ? const SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Adicionar à Biblioteca'),
-                  );
-                }
-              }),
+      body: Container(
+        height: double.infinity, // para ocupar toda altura e evitar fundo branco
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color.fromRGBO(4, 15, 26, 1),
+              Color.fromRGBO(0, 31, 63, 1),
             ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-        );
-      }),
+        ),
+        child: Obx(() {
+          if (controller.isLoading.value) {
+            return const Center(child: CircularProgressIndicator(color: Colors.white));
+          }
+
+          final game = controller.gameDetails.value;
+          if (game == null) {
+            return const Center(
+              child: Text('Erro ao carregar o jogo.', style: TextStyle(color: Colors.white)),
+            );
+          }
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.only(
+                top: kToolbarHeight + 16, left: 16, right: 16, bottom: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Capa
+                if (game.coverUrl != null)
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        game.coverUrl!.startsWith('http') ? game.coverUrl! : 'https:${game.coverUrl!}',
+                        height: 250,
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const Center(child: CircularProgressIndicator(color: Colors.white));
+                        },
+                      ),
+                    ),
+                  ),
+
+                const SizedBox(height: 20),
+
+                // Nome e nota
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        game.name,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    if (game.rating != null)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                          color: Colors.orange, // cor fixa
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          game.rating!.toStringAsFixed(1),
+                          style: const TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                  ],
+                ),
+
+                const SizedBox(height: 8),
+
+                // Datas, desenvolvedor, publicadora
+                if (game.releaseDate != null)
+                  Text(
+                    'Lançamento: ${game.releaseDate!.toLocal().toString().split(' ')[0]}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                if (game.developers != null && game.developers!.isNotEmpty)
+                  Text('Desenvolvedor: ${game.developers!.join(', ')}',
+                      style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                if (game.publishers != null && game.publishers!.isNotEmpty)
+                  Text('Publicadora: ${game.publishers!.join(', ')}',
+                      style: const TextStyle(color: Colors.white70, fontSize: 14)),
+
+                const SizedBox(height: 16),
+
+                // Gêneros
+                if (game.genres != null && game.genres!.isNotEmpty) ...[
+                  const Text(
+                    'Gêneros:',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: game.genres!
+                        .map((g) => Chip(
+                              label: Text(g),
+                              backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
+                              labelStyle: const TextStyle(color: Colors.white),
+                            ))
+                        .toList(),
+                  ),
+                ],
+
+                const SizedBox(height: 16),
+
+                // Plataformas
+                if (game.platforms != null && game.platforms!.isNotEmpty) ...[
+                  const Text(
+                    'Plataformas:',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: game.platforms!
+                        .map((p) => Chip(
+                              label: Text(p),
+                              backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
+                              labelStyle: const TextStyle(color: Colors.white),
+                            ))
+                        .toList(),
+                  ),
+                ],
+
+                const SizedBox(height: 20),
+
+                // Resumo
+                if (game.summary != null) ...[
+                  const Text(
+                    'Resumo:',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    game.summary!,
+                    style: const TextStyle(fontSize: 16, color: Colors.white),
+                    textAlign: TextAlign.justify,
+                  ),
+                ],
+
+                const SizedBox(height: 24),
+
+                // Botão condicional
+                Obx(() {
+                  if (controller.isOwned.value) {
+                    return Chip(
+                      label: const Text(
+                        'Na Biblioteca',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Colors.green,
+                    );
+                  } else {
+                    return ElevatedButton(
+                      onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF2284E6),
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                      ),
+                      child: controller.isAdding.value
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Adicionar à Biblioteca'),
+                    );
+                  }
+                }),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 }
