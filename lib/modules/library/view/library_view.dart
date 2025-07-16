@@ -14,11 +14,25 @@ class LibraryView extends StatefulWidget {
 
 class _LibraryViewState extends State<LibraryView> {
   final ProfileController profileController = Get.find<ProfileController>();
+  final RxString _searchQuery = ''.obs;
 
   @override
   void initState() {
     super.initState();
     profileController.loadSyncedGames();
+  }
+
+  List filteredGames() {
+    final query = _searchQuery.value.toLowerCase().trim();
+    if (query.isEmpty) return profileController.syncedGames;
+
+    return profileController.syncedGames.where((game) {
+      final name = game.name.toLowerCase();
+      final nameWords = name.split(RegExp(r'\s+'));
+      final queryWords = query.split(RegExp(r'\s+'));
+      return queryWords.every((word) =>
+          nameWords.any((w) => w.startsWith(word)));
+    }).toList();
   }
 
   @override
@@ -42,8 +56,29 @@ class _LibraryViewState extends State<LibraryView> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // 🔍 Campo de busca
+              TextField(
+                onChanged: (value) => _searchQuery.value = value,
+                style: const TextStyle(color: Colors.white),
+                decoration: InputDecoration(
+                  hintText: 'Buscar jogo...',
+                  hintStyle: const TextStyle(color: Colors.white),
+                  prefixIcon: const Icon(Icons.search, color: Colors.white),
+                  filled: true,
+                  fillColor: const Color(0xFF0A2A52),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
               Obx(() {
-                final games = profileController.syncedGames;
+                final games = filteredGames();
 
                 return Expanded(
                   child: Column(
@@ -109,10 +144,10 @@ class _LibraryViewState extends State<LibraryView> {
                             itemCount: games.length,
                             itemBuilder: (context, index) {
                               final game = games[index];
-                              // Ajusta coverUrl para URL completa se começar com //
-                              final coverUrl = (game.coverUrl != null && game.coverUrl!.startsWith('//'))
-                                  ? 'https:${game.coverUrl}'
-                                  : (game.coverUrl ?? '');
+                              final coverUrl =
+                                  (game.coverUrl != null && game.coverUrl!.startsWith('//'))
+                                      ? 'https:${game.coverUrl}'
+                                      : (game.coverUrl ?? '');
 
                               return SteamGameCard(
                                 name: game.name,

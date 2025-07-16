@@ -18,7 +18,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
         ),
       ),
       body: Container(
-        height: double.infinity, // para ocupar toda altura e evitar fundo branco
+        height: double.infinity,
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -64,6 +64,45 @@ class GameDetailsView extends GetView<GameDetailsController> {
                     ),
                   ),
 
+                const SizedBox(height: 16),
+
+                // Botão de Adicionar Jogo no topo
+                Center(
+                  child: Obx(() {
+                    if (controller.isOwned.value) {
+                      return Chip(
+                        label: const Text(
+                          'Na Biblioteca',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Colors.green,
+                      );
+                    } else {
+                      return ElevatedButton(
+                        onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF2284E6),
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
+                        child: controller.isAdding.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Text(
+                                'Adicionar à Biblioteca',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                      );
+                    }
+                  }),
+                ),
+
                 const SizedBox(height: 20),
 
                 // Nome e nota
@@ -84,7 +123,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                         decoration: BoxDecoration(
-                          color: Colors.orange, // cor fixa
+                          color: Colors.orange,
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -182,38 +221,6 @@ class GameDetailsView extends GetView<GameDetailsController> {
                 ],
 
                 const SizedBox(height: 24),
-
-                // Botão condicional
-                Obx(() {
-                  if (controller.isOwned.value) {
-                    return Chip(
-                      label: const Text(
-                        'Na Biblioteca',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      backgroundColor: Colors.green,
-                    );
-                  } else {
-                    return ElevatedButton(
-                      onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF2284E6),
-                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                      ),
-                      child: controller.isAdding.value
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : const Text('Adicionar à Biblioteca'),
-                    );
-                  }
-                }),
               ],
             ),
           );
