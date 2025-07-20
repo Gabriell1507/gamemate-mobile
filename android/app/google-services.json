@@ -14,15 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "9546524721-8bq05va9hc2narpbn2vc2gs4rsksk3pt.apps.googleusercontent.com",
+          "client_id": "9546524721-2vsoc2q3l0b8g0jhltq0bfuiticr1pin.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "br.com.gamemate.gamemate",
-            "certificate_hash": "2a2f0801f74f070cb27904a901977840477115f7"
+            "certificate_hash": "fe528691228d0b942c916308fe1e41e3e0fad068"
           }
         },
         {
-          "client_id": "9546524721-02bnk12l5k5giiij55cvhlabvoagtdqj.apps.googleusercontent.com",
+          "client_id": "9546524721-pbkc7al4u1tu5u3lvh7uh81phd9nuaoh.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

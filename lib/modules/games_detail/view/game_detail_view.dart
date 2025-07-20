@@ -32,7 +32,9 @@ class GameDetailsView extends GetView<GameDetailsController> {
         ),
         child: Obx(() {
           if (controller.isLoading.value) {
-            return const Center(child: CircularProgressIndicator(color: Colors.white));
+            return const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            );
           }
 
           final game = controller.gameDetails.value;
@@ -44,7 +46,11 @@ class GameDetailsView extends GetView<GameDetailsController> {
 
           return SingleChildScrollView(
             padding: const EdgeInsets.only(
-                top: kToolbarHeight + 16, left: 16, right: 16, bottom: 20),
+              top: kToolbarHeight + 16,
+              left: 16,
+              right: 16,
+              bottom: 20,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -54,91 +60,22 @@ class GameDetailsView extends GetView<GameDetailsController> {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(12),
                       child: Image.network(
-                        game.coverUrl!.startsWith('http') ? game.coverUrl! : 'https:${game.coverUrl!}',
+                        game.coverUrl!.startsWith('http')
+                            ? game.coverUrl!
+                            : 'https:${game.coverUrl!}',
                         height: 250,
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
-                          return const Center(child: CircularProgressIndicator(color: Colors.white));
+                          return const Center(
+                            child: CircularProgressIndicator(color: Colors.white),
+                          );
                         },
                       ),
                     ),
                   ),
 
                 const SizedBox(height: 16),
-
-                // Dropdown para selecionar Provider (se não estiver na biblioteca)
-                if (!controller.isOwned.value) 
-                  Center(
-                    child: Obx(() => DropdownButton<Provider>(
-                      value: controller.selectedProvider.value,
-                      dropdownColor: const Color.fromRGBO(0, 31, 63, 1),
-                      style: const TextStyle(color: Colors.white),
-                      items: Provider.values.map((provider) {
-                        return DropdownMenuItem<Provider>(
-                          value: provider,
-                          child: Text(provider.name),
-                        );
-                      }).toList(),
-                      onChanged: (provider) {
-                        if (provider != null) controller.selectedProvider.value = provider;
-                      },
-                    )),
-                  ),
-
-                if (!controller.isOwned.value)
-                  const SizedBox(height: 16),
-
-                // Botões de Adicionar / Remover
-                Center(
-                  child: Obx(() {
-                    if (controller.isOwned.value) {
-                      // Jogo já na biblioteca: mostra botão Remover
-                      return ElevatedButton.icon(
-                        onPressed: controller.isRemoving.value ? null : () => controller.removeFromLibrary(),
-                        icon: controller.isRemoving.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Icon(Icons.delete_forever),
-                        label: Text(
-                          controller.isRemoving.value ? 'Removendo...' : 'Remover da Biblioteca',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        ),
-                      );
-                    } else {
-                      // Jogo não está na biblioteca: mostra botão Adicionar
-                      return ElevatedButton.icon(
-                        onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
-                        icon: controller.isAdding.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                              )
-                            : const Icon(Icons.library_add),
-                        label: Text(
-                          controller.isAdding.value ? 'Adicionando...' : 'Adicionar à Biblioteca',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF2284E6),
-                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-                        ),
-                      );
-                    }
-                  }),
-                ),
-
-                const SizedBox(height: 20),
 
                 // Nome e nota
                 Row(
@@ -164,7 +101,9 @@ class GameDetailsView extends GetView<GameDetailsController> {
                         child: Text(
                           game.rating!.toStringAsFixed(1),
                           style: const TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                   ],
@@ -178,34 +117,41 @@ class GameDetailsView extends GetView<GameDetailsController> {
                     'Lançamento: ${game.releaseDate!.toLocal().toString().split(' ')[0]}',
                     style: const TextStyle(color: Colors.white70, fontSize: 14),
                   ),
-                if (game.developers != null && game.developers!.isNotEmpty)
-                  Text('Desenvolvedor: ${game.developers!.join(', ')}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 14)),
-                if (game.publishers != null && game.publishers!.isNotEmpty)
-                  Text('Publicadora: ${game.publishers!.join(', ')}',
-                      style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                if (game.developers.isNotEmpty)
+                  Text(
+                    'Desenvolvedor: ${game.developers.join(', ')}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
+                if (game.publishers.isNotEmpty)
+                  Text(
+                    'Publicadora: ${game.publishers.join(', ')}',
+                    style: const TextStyle(color: Colors.white70, fontSize: 14),
+                  ),
 
                 const SizedBox(height: 16),
 
                 // Gêneros
-                if (game.genres != null && game.genres!.isNotEmpty) ...[
+                if (game.genres.isNotEmpty) ...[
                   const Text(
                     'Gêneros:',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: game.genres!
-                        .map((g) => Chip(
-                              label: Text(g),
-                              backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
-                              labelStyle: const TextStyle(color: Colors.white),
-                            ))
+                    children: game.genres
+                        .map(
+                          (g) => Chip(
+                            label: Text(g),
+                            backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
+                            labelStyle: const TextStyle(color: Colors.white),
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
@@ -213,7 +159,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
                 const SizedBox(height: 16),
 
                 // Plataformas
-                if (game.platforms != null && game.platforms!.isNotEmpty) ...[
+                if (game.platforms.isNotEmpty) ...[
                   const Text(
                     'Plataformas:',
                     style: TextStyle(
@@ -226,12 +172,14 @@ class GameDetailsView extends GetView<GameDetailsController> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 8,
-                    children: game.platforms!
-                        .map((p) => Chip(
-                              label: Text(p),
-                              backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
-                              labelStyle: const TextStyle(color: Colors.white),
-                            ))
+                    children: game.platforms
+                        .map(
+                          (p) => Chip(
+                            label: Text(p),
+                            backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
+                            labelStyle: const TextStyle(color: Colors.white),
+                          ),
+                        )
                         .toList(),
                   ),
                 ],
@@ -243,9 +191,10 @@ class GameDetailsView extends GetView<GameDetailsController> {
                   const Text(
                     'Resumo:',
                     style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600),
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -256,6 +205,47 @@ class GameDetailsView extends GetView<GameDetailsController> {
                 ],
 
                 const SizedBox(height: 24),
+
+                // Screenshots
+                if (game.screenshots.isNotEmpty) ...[
+                  const Text(
+                    'Capturas de tela:',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 160,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: game.screenshots.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 12),
+                      itemBuilder: (_, index) {
+                        final url = game.screenshots[index].startsWith('http')
+                            ? game.screenshots[index]
+                            : 'https:${game.screenshots[index]}';
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.network(
+                            url,
+                            width: 240,
+                            height: 160,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(
+                                child: CircularProgressIndicator(color: Colors.white),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ],
             ),
           );

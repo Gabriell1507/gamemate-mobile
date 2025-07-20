@@ -10,8 +10,8 @@ class AuthService extends GetxService {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: dotenv.env['API_URL_DEV'] ?? '',
-      connectTimeout: const Duration(seconds: 20),
-      receiveTimeout: const Duration(seconds: 20),
+      connectTimeout: const Duration(seconds: 10),  // Timeout menor para evitar travar
+      receiveTimeout: const Duration(seconds: 10),
     ),
   )..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
@@ -27,10 +27,13 @@ class AuthService extends GetxService {
 
   Future<void> signOut() async {
     try {
+      print('[${DateTime.now()}] Iniciando signOut');
       await GoogleSignIn().signOut();
       await _auth.signOut();
       _currentUser.value = null;
+      print('[${DateTime.now()}] SignOut concluído');
     } catch (e) {
+      print('[${DateTime.now()}] Erro no signOut: $e');
       throw Exception("Erro ao sair: $e");
     }
   }
@@ -40,38 +43,49 @@ class AuthService extends GetxService {
     required String password,
   }) async {
     try {
+      print('[${DateTime.now()}] Tentando login com email e senha');
       final UserCredential userCredential =
           await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password,
       );
+      print('[${DateTime.now()}] Login com email concluído');
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
+      print('[${DateTime.now()}] Erro no login email/senha: ${e.message}');
       throw Exception(e.message ?? "Erro ao fazer login.");
     }
   }
 
   Future<UserCredential> signInWithGoogle() async {
     try {
+      print('[${DateTime.now()}] Iniciando login com Google');
       final GoogleSignIn googleSignIn = GoogleSignIn();
-      await googleSignIn.signOut();
-      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
 
+      // NÃO REMOVER O SIGNOUT FORÇADO, ele causa lentidão:
+      // await googleSignIn.signOut();
+
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
+        print('[${DateTime.now()}] Login com Google cancelado pelo usuário');
         throw Exception('Login cancelado pelo usuário');
       }
+      print('[${DateTime.now()}] Google user obtido: ${googleUser.email}');
 
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      print('[${DateTime.now()}] Google authentication obtida');
+
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
 
-      final UserCredential userCredential =
-          await _auth.signInWithCredential(credential);
+      final UserCredential userCredential = await _auth.signInWithCredential(credential);
+      print('[${DateTime.now()}] Login Firebase via Google concluído');
+
       return userCredential;
     } catch (e) {
+      print('[${DateTime.now()}] Erro no login com Google: $e');
       throw Exception("Erro ao fazer login com Google: $e");
     }
   }
@@ -82,6 +96,7 @@ class AuthService extends GetxService {
     required UserModel userModel,
   }) async {
     try {
+      print('[${DateTime.now()}] Iniciando cadastro com email');
       final UserCredential userCredential =
           await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -90,9 +105,12 @@ class AuthService extends GetxService {
 
       final User? user = userCredential.user;
       if (user != null) {
+        print('[${DateTime.now()}] Usuário Firebase criado, registrando no backend...');
         await _registerUserLocally(user: user, username: userModel.username);
       }
+      print('[${DateTime.now()}] Cadastro com email concluído');
     } on FirebaseAuthException catch (e) {
+      print('[${DateTime.now()}] Erro no cadastro com email: ${e.code} - ${e.message}');
       if (e.code == 'email-already-in-use') {
         throw Exception("Email já cadastrado. Faça login para continuar.");
       } else {
@@ -106,6 +124,7 @@ class AuthService extends GetxService {
     required UserModel userModel,
   }) async {
     try {
+      print('[${DateTime.now()}] Iniciando cadastro com Google');
       final idToken = await user.getIdToken();
 
       try {
@@ -115,17 +134,20 @@ class AuthService extends GetxService {
         );
 
         if (response.statusCode == 200) {
-          print('Usuário já existe no backend.');
+          print('[${DateTime.now()}] Usuário já existe no backend.');
           return;
         }
       } on DioException catch (e) {
         if (e.response?.statusCode != 404) {
+          print('[${DateTime.now()}] Erro inesperado ao verificar usuário no backend: ${e.response?.statusCode}');
           rethrow;
         }
       }
 
       await _registerUserLocally(user: user, username: userModel.username);
+      print('[${DateTime.now()}] Cadastro com Google concluído');
     } catch (e) {
+      print('[${DateTime.now()}] Erro no cadastro com Google: $e');
       throw Exception("Erro ao cadastrar com Google: $e");
     }
   }
@@ -135,6 +157,7 @@ class AuthService extends GetxService {
     required String username,
   }) async {
     try {
+      print('[${DateTime.now()}] Registrando usuário no backend local');
       final idToken = await user.getIdToken();
 
       final response = await _dio.post('/auth/register', data: {
@@ -143,15 +166,16 @@ class AuthService extends GetxService {
       });
 
       if (response.statusCode == 201) {
-        print('Usuário registrado localmente: ${response.data}');
+        print('[${DateTime.now()}] Usuário registrado localmente: ${response.data}');
       } else {
-        print('Resposta inesperada: ${response.statusCode}');
+        print('[${DateTime.now()}] Resposta inesperada do backend: ${response.statusCode}');
       }
     } on DioException catch (e) {
       if (e.response?.statusCode == 409) {
-        print('Usuário já existe no backend.');
+        print('[${DateTime.now()}] Usuário já existe no backend.');
         return;
       }
+      print('[${DateTime.now()}] Erro ao registrar usuário localmente: $e');
       rethrow;
     }
   }
