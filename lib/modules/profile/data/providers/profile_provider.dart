@@ -41,13 +41,18 @@
       );
     }
 
-    Future<List<OwnedGameModel>> fetchSyncedGames(String token) async {
-      final response = await _dio.get(
-        '/users/me/games',
-        options: Options(headers: {'Authorization': 'Bearer $token'}),
-      );
-      return (response.data as List)
-          .map((json) => OwnedGameModel.fromMap(json))
-          .toList();
-    }
+Future<List<OwnedGameModel>> fetchSyncedGames(String token) async {
+  final response = await _dio.get(
+    '/users/me/games',
+    options: Options(headers: {'Authorization': 'Bearer $token'}),
+  );
+
+  final data = response.data;
+  if (data == null || data['data'] == null) {
+    return [];
+  }
+
+  final List<dynamic> gamesJsonList = data['data'];
+  return gamesJsonList.map((json) => OwnedGameModel.fromMap(json)).toList();
+}
   }
