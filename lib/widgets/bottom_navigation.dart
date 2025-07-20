@@ -18,18 +18,18 @@ class CustomBottomBar extends StatefulWidget {
 class _CustomBottomBarState extends State<CustomBottomBar> {
   int _getIndexByRoute(String? route) {
     switch (route) {
-      // case '/friends':
-      //   return 0;
+      case '/friends':
+        return 0;
       case '/library':
-        return 0; // antes era 1
+        return 1; // antes era 1
       case '/home':
-        return 1; // antes era 2
+        return 2; // antes era 2
       // case '/stats':
       //   return 3;
       case '/profile':
-        return 2; // antes era 4
+        return 3; // antes era 4
       default:
-        return 1; // padrão Home
+        return 2; // padrão Home
     }
   }
 
@@ -48,22 +48,22 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
     });
 
     switch (index) {
-      // case 0:
-      //   final authService = Get.find<AuthService>();
-      //   await authService.signOut();
-      //   Get.offAllNamed('/login');
-      //   break;
-
       case 0:
+        final authService = Get.find<AuthService>();
+        await authService.signOut();
+        Get.offAllNamed('/login');
+        break;
+
+      case 1:
         Get.offNamed('/library');
         break;
-      case 1:
+      case 2:
         Get.offNamed('/home');
         break;
       // case 3:
       //   Get.offAllNamed('/login');
       //   break;
-      case 2:
+      case 3:
         Get.offNamed('/profile');
         break;
       default:
@@ -74,7 +74,7 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
   @override
   Widget build(BuildContext context) {
     final List<TabItem> items = [
-      // const TabItem(icon: Icons.group, title: 'Amigos'),
+      const TabItem(icon: Icons.group, title: 'Amigos'),
       const TabItem(icon: Icons.library_books, title: 'Biblioteca'),
       const TabItem(icon: Icons.home, title: 'Home'),
       // const TabItem(icon: Icons.bar_chart, title: 'Estatística'),

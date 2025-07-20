@@ -102,7 +102,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
                                 height: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Icon(Icons.delete_forever),
+                            : const Icon(Icons.delete_forever, color: Colors.white),
                         label: Text(
                           controller.isRemoving.value ? 'Removendo...' : 'Remover da Biblioteca',
                           style: const TextStyle(color: Colors.white),

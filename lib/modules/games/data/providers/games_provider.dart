@@ -26,34 +26,34 @@ class ApiService {
     }
   }
 
-Future<void> addGameToLibraryWithProvider(String gameId, String idToken, Provider provider) async {
-  try {
-    final response = await _dio.post(
-      '/users/me/games',
-      data: {
-        'gameId': gameId,
-        'sourceProvider': provider.name, // usa a extensão para pegar o nome string
-      },
-      options: Options(
-        headers: {'Authorization': 'Bearer $idToken'},
-      ),
-    );
+  Future<void> addGameToLibraryWithProvider(
+      String gameId, String idToken, Provider provider) async {
+    try {
+      final response = await _dio.post(
+        '/users/me/games',
+        data: {
+          'gameId': gameId,
+          'sourceProvider':
+              provider.name, // usa a extensão para pegar o nome string
+        },
+        options: Options(
+          headers: {'Authorization': 'Bearer $idToken'},
+        ),
+      );
 
-    if (response.statusCode != 201) {
-      final error = response.data['message'] ?? 'Falha ao adicionar o jogo.';
-      throw Exception(error);
-    }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      final message = e.response?.data['message'] ?? 'Erro na requisição.';
-      throw Exception(message);
-    } else {
-      throw Exception('Erro de conexão.');
+      if (response.statusCode != 201) {
+        final error = response.data['message'] ?? 'Falha ao adicionar o jogo.';
+        throw Exception(error);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message = e.response?.data['message'] ?? 'Erro na requisição.';
+        throw Exception(message);
+      } else {
+        throw Exception('Erro de conexão.');
+      }
     }
   }
-}
-
-
 
   Future<List<IGDBGame>> getFeaturedGames() async {
     try {
@@ -94,71 +94,70 @@ Future<void> addGameToLibraryWithProvider(String gameId, String idToken, Provide
   }
 
   Future<List<OwnedGameModel>> fetchUserOwnedGames(String idToken) async {
-  try {
-    final response = await _dio.get(
-      '/users/me/games',
-      options: Options(
-        headers: {'Authorization': 'Bearer $idToken'},
-      ),
-    );
+    try {
+      final response = await _dio.get(
+        '/users/me/games',
+        options: Options(
+          headers: {'Authorization': 'Bearer $idToken'},
+        ),
+      );
 
-    final List data = response.data as List;
-    return data.map((e) => OwnedGameModel.fromMap(e)).toList();
-  } on DioException catch (e) {
-    if (e.response != null) {
-      final message = e.response?.data['message'] ?? 'Erro ao buscar jogos.';
-      throw Exception(message);
-    } else {
-      throw Exception('Erro de conexão.');
+      final List data = response.data as List;
+      return data.map((e) => OwnedGameModel.fromMap(e)).toList();
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message = e.response?.data['message'] ?? 'Erro ao buscar jogos.';
+        throw Exception(message);
+      } else {
+        throw Exception('Erro de conexão.');
+      }
     }
   }
-}
 
-Future<OwnedGameModel> updateGameStatus(
-    String gameId, String status, String idToken) async {
-  try {
-    final response = await _dio.put(
-      '/users/me/games/$gameId/status',
-      data: {'status': status},
-      options: Options(
-        headers: {'Authorization': 'Bearer $idToken'},
-      ),
-    );
+  Future<OwnedGameModel> updateGameStatus(
+      String gameId, String status, String idToken) async {
+    try {
+      final response = await _dio.put(
+        '/users/me/games/$gameId/status',
+        data: {'status': status},
+        options: Options(
+          headers: {'Authorization': 'Bearer $idToken'},
+        ),
+      );
 
-    return OwnedGameModel.fromMap(response.data);
-  } on DioException catch (e) {
-    if (e.response != null) {
-      final message = e.response?.data['message'] ?? 'Erro ao atualizar status.';
-      throw Exception(message);
-    } else {
-      throw Exception('Erro de conexão.');
+      return OwnedGameModel.fromMap(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message =
+            e.response?.data['message'] ?? 'Erro ao atualizar status.';
+        throw Exception(message);
+      } else {
+        throw Exception('Erro de conexão.');
+      }
     }
   }
-}
 
-Future<void> removeGameFromLibrary(String gameId, String idToken) async {
-  try {
-    final response = await _dio.delete(
-      '/users/me/games',
-      data: {'gameId': gameId},
-      options: Options(
-        headers: {'Authorization': 'Bearer $idToken'},
-      ),
-    );
+  Future<void> removeGameFromLibrary(String gameId, String idToken) async {
+    try {
+      final response = await _dio.delete(
+        '/users/me/games',
+        data: {'gameId': gameId},
+        options: Options(
+          headers: {'Authorization': 'Bearer $idToken'},
+        ),
+      );
 
-    if (response.statusCode != 204) {
-      final error = response.data['message'] ?? 'Falha ao remover o jogo.';
-      throw Exception(error);
-    }
-  } on DioException catch (e) {
-    if (e.response != null) {
-      final message = e.response?.data['message'] ?? 'Erro na requisição.';
-      throw Exception(message);
-    } else {
-      throw Exception('Erro de conexão.');
+      if (response.statusCode != 204) {
+        final error = response.data['message'] ?? 'Falha ao remover o jogo.';
+        throw Exception(error);
+      }
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message = e.response?.data['message'] ?? 'Erro na requisição.';
+        throw Exception(message);
+      } else {
+        throw Exception('Erro de conexão.');
+      }
     }
   }
-}
-
-
 }
