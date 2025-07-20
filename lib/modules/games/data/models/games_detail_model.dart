@@ -1,3 +1,5 @@
+import 'package:gamemate/utils/enums.dart'; // seu enum GameStatus
+
 class GameDetailsModel {
   final String id;
   final String name;
@@ -12,6 +14,7 @@ class GameDetailsModel {
   final bool isOwned;
   final int? playtimeMinutes;
   final DateTime? lastPlayedAt;
+  GameStatus? status;  // ADICIONE AQUI
 
   GameDetailsModel({
     required this.id,
@@ -27,6 +30,7 @@ class GameDetailsModel {
     this.isOwned = false,
     this.playtimeMinutes,
     this.lastPlayedAt,
+    this.status,  // ADICIONE NO CONSTRUTOR
   });
 
   factory GameDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -44,6 +48,10 @@ class GameDetailsModel {
       isOwned: json['isOwned'] ?? false,
       playtimeMinutes: json['playtimeMinutes'],
       lastPlayedAt: json['lastPlayedAt'] != null ? DateTime.tryParse(json['lastPlayedAt']) : null,
+      status: json['status'] != null ? GameStatus.values.firstWhere(
+        (e) => e.name.toLowerCase() == (json['status'] as String).toLowerCase(),
+        orElse: () => GameStatus.NUNCA_JOGADO,
+      ) : null,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gamemate/utils/enums.dart';
 import 'package:get/get.dart';
 import '../controllers/game_detail_controller.dart';
 
@@ -66,38 +67,72 @@ class GameDetailsView extends GetView<GameDetailsController> {
 
                 const SizedBox(height: 16),
 
-                // Botão de Adicionar Jogo no topo
+                // Dropdown para selecionar Provider (se não estiver na biblioteca)
+                if (!controller.isOwned.value) 
+                  Center(
+                    child: Obx(() => DropdownButton<Provider>(
+                      value: controller.selectedProvider.value,
+                      dropdownColor: const Color.fromRGBO(0, 31, 63, 1),
+                      style: const TextStyle(color: Colors.white),
+                      items: Provider.values.map((provider) {
+                        return DropdownMenuItem<Provider>(
+                          value: provider,
+                          child: Text(provider.name),
+                        );
+                      }).toList(),
+                      onChanged: (provider) {
+                        if (provider != null) controller.selectedProvider.value = provider;
+                      },
+                    )),
+                  ),
+
+                if (!controller.isOwned.value)
+                  const SizedBox(height: 16),
+
+                // Botões de Adicionar / Remover
                 Center(
                   child: Obx(() {
                     if (controller.isOwned.value) {
-                      return Chip(
-                        label: const Text(
-                          'Na Biblioteca',
-                          style: TextStyle(color: Colors.white),
+                      // Jogo já na biblioteca: mostra botão Remover
+                      return ElevatedButton.icon(
+                        onPressed: controller.isRemoving.value ? null : () => controller.removeFromLibrary(),
+                        icon: controller.isRemoving.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Icon(Icons.delete_forever),
+                        label: Text(
+                          controller.isRemoving.value ? 'Removendo...' : 'Remover da Biblioteca',
+                          style: const TextStyle(color: Colors.white),
                         ),
-                        backgroundColor: Colors.green,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                        ),
                       );
                     } else {
-                      return ElevatedButton(
+                      // Jogo não está na biblioteca: mostra botão Adicionar
+                      return ElevatedButton.icon(
                         onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
+                        icon: controller.isAdding.value
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Icon(Icons.library_add),
+                        label: Text(
+                          controller.isAdding.value ? 'Adicionando...' : 'Adicionar à Biblioteca',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF2284E6),
                           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                         ),
-                        child: controller.isAdding.value
-                            ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
-                              )
-                            : const Text(
-                                'Adicionar à Biblioteca',
-                                style: TextStyle(color: Colors.white),
-                              ),
                       );
                     }
                   }),

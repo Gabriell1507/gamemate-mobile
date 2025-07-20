@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:gamemate/modules/games/data/models/games_detail_model.dart';
 import 'package:gamemate/modules/games/data/providers/games_provider.dart';
+import 'package:gamemate/utils/enums.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -9,10 +10,13 @@ class GameDetailsController extends GetxController {
   final ApiService _apiService = ApiService();
 
   final isLoading = true.obs;
-  final isAdding = false.obs; // para controlar loading do botão adicionar
-  final gameDetails = Rxn<GameDetailsModel>();
-  final isOwned = false.obs; // controla se usuário já possui o jogo
+  final isAdding = false.obs;
+  final isUpdatingStatus = false.obs;
+  final isRemoving = false.obs;
 
+  final gameDetails = Rxn<GameDetailsModel>();
+  final isOwned = false.obs;
+  final selectedProvider = Provider.GAMEMATE.obs;
   late String uuid;
 
   @override
@@ -39,10 +43,9 @@ class GameDetailsController extends GetxController {
       final user = FirebaseAuth.instance.currentUser;
       final idToken = await user?.getIdToken();
 
-      // Pega detalhes com token para saber se o usuário possui o jogo (isOwned)
       final details = await _apiService.getGameDetails(uuid, idToken: idToken);
       gameDetails.value = details;
-      isOwned.value = details.isOwned; // assume que seu model tem essa propriedade
+      isOwned.value = details.isOwned;
     } catch (e) {
       Get.snackbar('Erro', 'Erro ao carregar detalhes do jogo');
       Get.back();
@@ -52,25 +55,57 @@ class GameDetailsController extends GetxController {
   }
 
   Future<void> addToLibrary() async {
-    if (isAdding.value) return; // evita múltiplos cliques
-    isAdding.value = true;
+  if (isAdding.value) return;
+  isAdding.value = true;
+
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user?.getIdToken();
+
+    if (idToken == null) throw Exception('Usuário não autenticado.');
+
+    await _apiService.addGameToLibraryWithProvider(uuid, idToken, selectedProvider.value);
+
+    isOwned.value = true;
+
+    Get.snackbar(
+      'Sucesso',
+      'Jogo adicionado à sua biblioteca!',
+      backgroundColor: const Color(0xFF2284E6),
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    Get.snackbar(
+      'Erro',
+      e.toString(),
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } finally {
+    isAdding.value = false;
+  }
+}
+
+
+  Future<void> updateStatus(GameStatus newStatus) async {
+    if (isUpdatingStatus.value) return;
+    isUpdatingStatus.value = true;
 
     try {
       final user = FirebaseAuth.instance.currentUser;
       final idToken = await user?.getIdToken();
+      if (idToken == null) throw Exception('Usuário não autenticado.');
 
-      if (idToken == null) {
-        throw Exception('Usuário não autenticado.');
-      }
+      final updatedGame = await _apiService.updateGameStatus(uuid, newStatus.name, idToken);
 
-      await _apiService.addGameToLibrary(uuid, idToken);
-
-      // Atualiza localmente a flag para mudar a UI
+      // Atualiza os dados locais se necessário
+      // Por exemplo, atualizar playtime ou outras propriedades do gameDetails, se houver
+      // Aqui simplificamos atualizando só o flag isOwned como true (pois só dá pra atualizar status se possuir)
       isOwned.value = true;
 
       Get.snackbar(
         'Sucesso',
-        'Jogo adicionado à sua biblioteca!',
+        'Status do jogo atualizado para ${newStatus.name}.',
         backgroundColor: const Color(0xFF2284E6),
         colorText: Colors.white,
       );
@@ -82,7 +117,41 @@ class GameDetailsController extends GetxController {
         colorText: Colors.white,
       );
     } finally {
-      isAdding.value = false;
+      isUpdatingStatus.value = false;
+    }
+  }
+
+  Future<void> removeFromLibrary() async {
+    if (isRemoving.value) return;
+    isRemoving.value = true;
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final idToken = await user?.getIdToken();
+      if (idToken == null) throw Exception('Usuário não autenticado.');
+
+      await _apiService.removeGameFromLibrary(uuid, idToken);
+
+      isOwned.value = false;
+
+      Get.snackbar(
+        'Sucesso',
+        'Jogo removido da sua biblioteca.',
+        backgroundColor: const Color(0xFF2284E6),
+        colorText: Colors.white,
+      );
+
+      // Opcional: fecha a tela após remover
+      Get.back();
+    } catch (e) {
+      Get.snackbar(
+        'Erro',
+        e.toString(),
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } finally {
+      isRemoving.value = false;
     }
   }
 }
