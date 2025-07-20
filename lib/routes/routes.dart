@@ -49,21 +49,25 @@ class AppRoute {
       binding: LoginBinding(),
       name: login,
       page: () => LoginView(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: register,
       page: () => const SignupView(),
       binding: SignupBindings(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: forgotPassword,
       page: () => const ForgotPasswordView(),
       binding: ForgotPasswordBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: home,
       page: () => GamesView(),
       binding: GamesBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: '/result-page',
@@ -71,21 +75,25 @@ class AppRoute {
       binding: BindingsBuilder(() {
         Get.lazyPut(() => SearchResultsController());
       }),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: '/game-detail',
       page: () => const GameDetailsView(),
       binding: GameDetailsBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: '/profile',
       page: () => ProfilePage(),
       binding: ProfileBinding(),
+      transition: Transition.noTransition,
     ),
     GetPage(
       name: '/library',
       page: () => const LibraryView(),
       binding: ProfileBinding(),
+      transition: Transition.noTransition,
     ),
   ];
 }
