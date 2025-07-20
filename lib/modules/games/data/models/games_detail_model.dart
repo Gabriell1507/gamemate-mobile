@@ -15,6 +15,7 @@ class GameDetailsModel {
   final int? playtimeMinutes;
   final DateTime? lastPlayedAt;
   GameStatus? status;  // ADICIONE AQUI
+  final List<String>? screenshots;
 
   GameDetailsModel({
     required this.id,
@@ -31,6 +32,7 @@ class GameDetailsModel {
     this.playtimeMinutes,
     this.lastPlayedAt,
     this.status,  // ADICIONE NO CONSTRUTOR
+    this.screenshots,
   });
 
   factory GameDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -52,6 +54,7 @@ class GameDetailsModel {
         (e) => e.name.toLowerCase() == (json['status'] as String).toLowerCase(),
         orElse: () => GameStatus.NUNCA_JOGADO,
       ) : null,
+    screenshots: json['screenshots'] != null ? List<String>.from(json['screenshots']) : [],
     );
   }
 }
