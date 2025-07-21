@@ -15,17 +15,17 @@ class ApiService {
     ),
   )..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
-  Future<List<IGDBGame>> searchGames(String query) async {
-    try {
-      final response =
-          await _dio.get('/games/search', queryParameters: {'q': query});
-      print('Resposta API searchGames: ${response.data}');
-      final List data = response.data as List;
-      return data.map((e) => IGDBGame.fromJson(e)).toList();
-    } on DioException catch (dioError) {
-      rethrow;
-    }
+Future<List<IGDBGame>> searchGames(String query) async {
+  try {
+    final response = await _dio.get('/games/search', queryParameters: {'q': query});
+    print('Resposta API searchGames: ${response.data}');
+    final List data = response.data as List;
+    // Usa fromSearchJson para search
+    return data.map((e) => IGDBGame.fromSearchJson(e)).toList();
+  } on DioException {
+    rethrow;
   }
+}
 
   Future<void> addGameToLibraryWithProvider(
       String gameId, String idToken, Provider provider) async {
@@ -56,15 +56,16 @@ class ApiService {
     }
   }
 
-  Future<List<IGDBGame>> getFeaturedGames() async {
-    try {
-      final response = await _dio.get('/games/featured');
-      final List data = response.data as List;
-      return data.map((e) => IGDBGame.fromJson(e)).toList();
-    } on DioException catch (dioError) {
-      rethrow;
-    }
+Future<List<IGDBGame>> getFeaturedGames() async {
+  try {
+    final response = await _dio.get('/games/featured');
+    final List data = response.data as List;
+    // Usa fromJson para featured
+    return data.map((e) => IGDBGame.fromJson(e)).toList();
+  } on DioException {
+    rethrow;
   }
+}
 
   Future<String> resolveGameId({String? igdbId, String? steamAppId}) async {
     try {
