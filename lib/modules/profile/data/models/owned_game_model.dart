@@ -12,6 +12,8 @@ class OwnedGameModel {
   final List<String> publishers;
   final List<String> platforms;
   final int? playtimeMinutes;
+  final String status;
+  final String sourceProvider;
 
   OwnedGameModel({
     required this.id,
@@ -27,6 +29,8 @@ class OwnedGameModel {
     required this.publishers,
     required this.platforms,
     this.playtimeMinutes,
+    required this.status,
+    required this.sourceProvider,
   });
 
   factory OwnedGameModel.fromMap(Map<String, dynamic> map) {
@@ -44,6 +48,8 @@ class OwnedGameModel {
       publishers: List<String>.from(map['publishers'] ?? []),
       platforms: List<String>.from(map['platforms'] ?? []),
       playtimeMinutes: map['playtimeMinutes'],
+      status: map['status'] ?? 'NUNCA_JOGADO',
+      sourceProvider: map['sourceProvider'] ?? 'GAMEMATE',
     );
   }
 }

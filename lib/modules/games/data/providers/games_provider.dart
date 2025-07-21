@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gamemate/modules/games/data/models/games_detail_model.dart';
+import 'package:gamemate/modules/games/data/models/paginated_games_response.dart';
 import 'package:gamemate/modules/profile/data/models/owned_game_model.dart';
 import 'package:gamemate/utils/enums.dart';
 import '../models/games_model.dart';
@@ -93,49 +94,111 @@ class ApiService {
     }
   }
 
-  Future<List<OwnedGameModel>> fetchUserOwnedGames(String idToken) async {
-    try {
-      final response = await _dio.get(
-        '/users/me/games',
-        options: Options(
-          headers: {'Authorization': 'Bearer $idToken'},
-        ),
-      );
+// Future<List<OwnedGameModel>> fetchUserOwnedGames({
+//   required String idToken,
+//   required int page,
+//   required int pageSize,
+//   String? statusFilter,
+// }) async {
+//   Map<String, dynamic> queryParameters = {
+//     'page': page,
+//     'pageSize': pageSize,
+//   };
 
-      final List data = response.data as List;
-      return data.map((e) => OwnedGameModel.fromMap(e)).toList();
-    } on DioException catch (e) {
-      if (e.response != null) {
-        final message = e.response?.data['message'] ?? 'Erro ao buscar jogos.';
-        throw Exception(message);
-      } else {
-        throw Exception('Erro de conexão.');
-      }
+//   if (statusFilter != null && statusFilter.isNotEmpty) {
+//     queryParameters['status'] = statusFilter;
+//   }
+
+//   final response = await _dio.get(
+//     '/users/me/games',
+//     queryParameters: queryParameters,
+//     options: Options(
+//       headers: {'Authorization': 'Bearer $idToken'},
+//     ),
+//   );
+
+//   final List<dynamic> dataList = response.data['data'] ?? [];
+
+//   return dataList.map((json) => OwnedGameModel.fromMap(json)).toList();
+// }
+
+
+Future<void> updateGameStatus(
+  String gameId,
+  String status,
+  String idToken,
+) async {
+  try {
+    final response = await _dio.put(
+      '/users/me/games/$gameId/status',
+      data: {'status': status},
+      options: Options(
+        headers: {'Authorization': 'Bearer $idToken'},
+      ),
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception('Erro inesperado: statusCode ${response.statusCode}');
+    }
+    // Não tenta acessar response.data aqui pois não tem
+  } on DioException catch (e) {
+    if (e.response != null) {
+      final message = e.response?.data['message'] ?? 'Erro ao atualizar status.';
+      throw Exception(message);
+    } else {
+      throw Exception('Erro de conexão.');
     }
   }
+}
 
-  Future<OwnedGameModel> updateGameStatus(
-      String gameId, String status, String idToken) async {
-    try {
-      final response = await _dio.put(
-        '/users/me/games/$gameId/status',
-        data: {'status': status},
-        options: Options(
-          headers: {'Authorization': 'Bearer $idToken'},
-        ),
-      );
 
-      return OwnedGameModel.fromMap(response.data);
-    } on DioException catch (e) {
-      if (e.response != null) {
-        final message =
-            e.response?.data['message'] ?? 'Erro ao atualizar status.';
-        throw Exception(message);
-      } else {
-        throw Exception('Erro de conexão.');
-      }
+
+
+
+
+Future<PaginatedGamesResponse> fetchUserOwnedGames({
+  required String idToken,
+  int skip = 0,
+  int take = 20,
+  String? nameFilter,
+  String? statusFilter,
+  String? providerFilter,
+}) async {
+  final queryParameters = <String, dynamic>{
+    'skip': skip,
+    'take': take,
+  };
+
+  if (nameFilter != null && nameFilter.isNotEmpty) {
+    queryParameters['name'] = nameFilter;
+  }
+  if (statusFilter != null && statusFilter.isNotEmpty) {
+    queryParameters['status'] = statusFilter;
+  }
+  if (providerFilter != null && providerFilter.isNotEmpty) {
+    queryParameters['provider'] = providerFilter;
+  }
+
+  try {
+    final response = await _dio.get(
+      '/users/me/games',
+      queryParameters: queryParameters,
+      options: Options(
+        headers: {'Authorization': 'Bearer $idToken'},
+      ),
+    );
+
+    return PaginatedGamesResponse.fromMap(response.data);
+  } on DioException catch (e) {
+    if (e.response != null) {
+      final message = e.response?.data['message'] ?? 'Erro ao buscar jogos.';
+      throw Exception(message);
+    } else {
+      throw Exception('Erro de conexão.');
     }
   }
+}
+
 
   Future<void> removeGameFromLibrary(String gameId, String idToken) async {
     try {

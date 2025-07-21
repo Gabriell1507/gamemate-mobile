@@ -5,6 +5,7 @@ import 'package:gamemate/modules/games/data/providers/games_provider.dart';
 import 'package:gamemate/utils/enums.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
 
 class GameDetailsController extends GetxController {
   final ApiService _apiService = ApiService();
@@ -87,39 +88,42 @@ class GameDetailsController extends GetxController {
 }
 
 
-  Future<void> updateStatus(GameStatus newStatus) async {
-    if (isUpdatingStatus.value) return;
-    isUpdatingStatus.value = true;
+Future<void> updateStatus(GameStatus newStatus) async {
+  if (isUpdatingStatus.value) return;
+  isUpdatingStatus.value = true;
 
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      final idToken = await user?.getIdToken();
-      if (idToken == null) throw Exception('Usuário não autenticado.');
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user?.getIdToken();
+    if (idToken == null) throw Exception('Usuário não autenticado.');
 
-      final updatedGame = await _apiService.updateGameStatus(uuid, newStatus.name, idToken);
+    // Atualiza no backend
+    await _apiService.updateGameStatus(uuid, newStatus.name, idToken);
 
-      // Atualiza os dados locais se necessário
-      // Por exemplo, atualizar playtime ou outras propriedades do gameDetails, se houver
-      // Aqui simplificamos atualizando só o flag isOwned como true (pois só dá pra atualizar status se possuir)
-      isOwned.value = true;
+    // Atualiza localmente o gameDetails com o enum diretamente
+    gameDetails.value = gameDetails.value?.copyWith(status: newStatus);
+    gameDetails.refresh();
 
-      Get.snackbar(
-        'Sucesso',
-        'Status do jogo atualizado para ${newStatus.name}.',
-        backgroundColor: const Color(0xFF2284E6),
-        colorText: Colors.white,
-      );
-    } catch (e) {
-      Get.snackbar(
-        'Erro',
-        e.toString(),
-        backgroundColor: Colors.red,
-        colorText: Colors.white,
-      );
-    } finally {
-      isUpdatingStatus.value = false;
-    }
+    isOwned.value = true; // mantém coerência
+
+    Get.snackbar(
+      'Sucesso',
+      'Status do jogo atualizado para ${newStatus.name}.',
+      backgroundColor: const Color(0xFF2284E6),
+      colorText: Colors.white,
+    );
+  } catch (e) {
+    Get.snackbar(
+      'Erro',
+      e.toString(),
+      backgroundColor: Colors.red,
+      colorText: Colors.white,
+    );
+  } finally {
+    isUpdatingStatus.value = false;
   }
+}
+
 
   Future<void> removeFromLibrary() async {
     if (isRemoving.value) return;

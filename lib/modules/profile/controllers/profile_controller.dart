@@ -1,7 +1,9 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gamemate/modules/games/data/providers/games_provider.dart';
 import 'package:gamemate/modules/profile/data/models/owned_game_model.dart';
 import 'package:gamemate/modules/profile/data/models/user_profile_model.dart';
 import 'package:gamemate/modules/profile/data/providers/profile_provider.dart';
+import 'package:gamemate/utils/enums.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -20,24 +22,25 @@ class ProfileController extends GetxController {
   var isDropdownOpen = false.obs;
   var confirmDelete = false.obs;
 
-  // Controle de loading
+  // Controle de loading geral
   RxBool isLoading = false.obs;
 
-  // Dados do perfil carregado e jogos sincronizados
+  // Dados do perfil e jogos sincronizados
   Rx<UserProfileModel?> userProfile = Rx<UserProfileModel?>(null);
-  RxList<OwnedGameModel> syncedGames = RxList<OwnedGameModel>();
+  final RxList<OwnedGameModel> syncedGames = <OwnedGameModel>[].obs;
+
+  // Paginação e filtro dos jogos sincronizados
+  final RxBool isLoadingMore = false.obs;
+  final RxBool hasMore = true.obs;
+  final RxInt currentPage = 1.obs;
+  final int pageSize = 20;
+  final Rx<GameStatus?> filterStatus = Rx<GameStatus?>(null);
+
+  final ApiService _apiService = ApiService();
 
   // Contas vinculadas
   Map<String, RxBool> linkedAccounts = {
     'Steam': false.obs,
-    // 'Epic': false.obs,
-    // 'GOG': false.obs,
-    // 'Ubisoft': false.obs,
-    // 'EA': false.obs,
-    // 'Amazon': false.obs,
-    // 'Playstation': false.obs,
-    // 'Xbox': false.obs,
-    // 'Nintendo': false.obs,
   };
 
   final ProfileProvider profileProvider;
@@ -45,10 +48,8 @@ class ProfileController extends GetxController {
 
   ProfileController(this.profileProvider);
 
-  // Abre ou fecha dropdown
-  void toggleDropdown() {
-    isDropdownOpen.value = !isDropdownOpen.value;
-  }
+  // Toggle dropdown UI
+  void toggleDropdown() => isDropdownOpen.value = !isDropdownOpen.value;
 
   // Alterna vinculação de conta
   Future<void> toggleLink(String platform) async {
@@ -75,13 +76,12 @@ class ProfileController extends GetxController {
     }
   }
 
-  // Obtém o ID token do usuário autenticado
   Future<String?> getIdToken() async {
     final user = FirebaseAuth.instance.currentUser;
     return user?.getIdToken();
   }
 
-  // Carrega o perfil do usuário da API
+  // Carrega perfil
   Future<void> loadUserProfile() async {
     final token = await getIdToken();
     if (token == null) return;
@@ -90,12 +90,11 @@ class ProfileController extends GetxController {
       isLoading(true);
       userProfile.value = await profileProvider.fetchUserProfile(token);
 
-      // Atualiza contas vinculadas localmente
+      // Atualiza contas vinculadas
       if (userProfile.value != null) {
         for (var platform in linkedAccounts.keys) {
-          linkedAccounts[platform]?.value =
-              userProfile.value!.linkedAccounts.any((acc) =>
-                  acc.provider.toLowerCase() == platform.toLowerCase());
+          linkedAccounts[platform]?.value = userProfile.value!.linkedAccounts
+              .any((acc) => acc.provider.toLowerCase() == platform.toLowerCase());
         }
       }
     } finally {
@@ -117,20 +116,54 @@ class ProfileController extends GetxController {
     }
   }
 
-  // Carrega os jogos sincronizados
-  Future<void> loadSyncedGames() async {
-    final token = await getIdToken();
-    if (token == null) return;
+  /// Carrega os jogos sincronizados, com paginação e filtro de status
+Future<void> loadSyncedGames({bool reset = false}) async {
+  if (isLoadingMore.value) return;
 
-    try {
-      isLoading(true);
-      syncedGames.value = await profileProvider.fetchSyncedGames(token);
-    } finally {
-      isLoading(false);
+  if (reset) {
+    currentPage.value = 0; // Use skip/take, não page
+    syncedGames.clear();
+    hasMore.value = true;
+  }
+  if (!hasMore.value) return;
+
+  isLoadingMore.value = true;
+
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    final idToken = await user?.getIdToken();
+    if (idToken == null) throw Exception('Usuário não autenticado.');
+
+    final gamesResponse = await _apiService.fetchUserOwnedGames(
+      idToken: idToken,
+      skip: currentPage.value * pageSize,
+      take: pageSize,
+      statusFilter: filterStatus.value?.name,
+    );
+
+    syncedGames.addAll(gamesResponse.data);
+
+    if (!gamesResponse.hasNextPage || gamesResponse.data.isEmpty) {
+      hasMore.value = false;
+    } else {
+      currentPage.value += 1;
     }
+
+  } catch (e) {
+    Get.snackbar('Erro', e.toString());
+  } finally {
+    isLoadingMore.value = false;
+  }
+}
+
+
+  // Método para setar filtro e recarregar a lista
+  void setFilter(GameStatus? status) {
+    filterStatus.value = status;
+    loadSyncedGames(reset: true);
   }
 
-  // Abre o link de autenticação Steam
+  // Abre link de autenticação Steam
   Future<void> openSteamLink() async {
     final token = await getIdToken();
     if (token == null) {
@@ -138,7 +171,6 @@ class ProfileController extends GetxController {
       return;
     }
 
-    final backendUrl = dotenv.env['API_URL_DEV'] ?? '';
     final baseUrl = backendUrl.endsWith('/')
         ? backendUrl.substring(0, backendUrl.length - 1)
         : backendUrl;
@@ -163,7 +195,7 @@ class ProfileController extends GetxController {
     }
   }
 
-  // Atualiza os valores reativos com base no modelo
+  // Atualiza os valores do perfil reativo
   void updateProfileFromModel() {
     final profile = userProfile.value;
     if (profile == null) return;
@@ -172,18 +204,19 @@ class ProfileController extends GetxController {
     achievements.value = profile.achievements ?? 0;
     platinums.value = profile.platinums ?? 0;
     bio.value = profile.bio ?? '';
-    avatarUrl.value =
-        profile.avatarUrl?.isNotEmpty == true ? profile.avatarUrl! : "https://i.imgur.com/4Zb1z5H.png";
+    avatarUrl.value = profile.avatarUrl?.isNotEmpty == true
+        ? profile.avatarUrl!
+        : "https://i.imgur.com/4Zb1z5H.png";
 
     games.value = profile.profileStats?.totalGames ?? 0;
     hoursPlayed.value = profile.profileStats?.totalHoursPlayed ?? 0;
   }
 
-  // Inicializa o perfil do usuário
+  // Inicializa o perfil e jogos ao iniciar
   Future<void> initializeProfileData() async {
     await loadUserProfile();
     updateProfileFromModel();
-    await loadSyncedGames(); // opcional
+    await loadSyncedGames(reset: true);
   }
 
   @override

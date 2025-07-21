@@ -6,6 +6,17 @@ import '../controllers/game_detail_controller.dart';
 class GameDetailsView extends GetView<GameDetailsController> {
   const GameDetailsView({super.key});
 
+  // Helper para converter string do modelo para enum GameStatus
+  GameStatus? _getCurrentStatus() {
+    final statusString = controller.gameDetails.value?.status;
+    if (statusString == null) return null;
+    try {
+      return GameStatus.values.firstWhere((e) => e.name == statusString);
+    } catch (_) {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,13 +53,15 @@ class GameDetailsView extends GetView<GameDetailsController> {
             );
           }
 
+          final currentStatus = _getCurrentStatus();
+
           return SingleChildScrollView(
             padding: const EdgeInsets.only(
-                top: kToolbarHeight + 16, left: 16, right: 16, bottom: 20),
+              top: kToolbarHeight + 16, left: 16, right: 16, bottom: 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Capa
+                // Capa do jogo
                 if (game.coverUrl != null)
                   Center(
                     child: ClipRRect(
@@ -67,7 +80,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
 
                 const SizedBox(height: 16),
 
-                // Dropdown para selecionar Provider (se não estiver na biblioteca)
+                // Dropdown para Provider (se não possuir o jogo)
                 if (!controller.isOwned.value) 
                   Center(
                     child: Obx(() => DropdownButton<Provider>(
@@ -89,11 +102,10 @@ class GameDetailsView extends GetView<GameDetailsController> {
                 if (!controller.isOwned.value)
                   const SizedBox(height: 16),
 
-                // Botões de Adicionar / Remover
+                // Botões Adicionar / Remover da biblioteca
                 Center(
                   child: Obx(() {
                     if (controller.isOwned.value) {
-                      // Jogo já na biblioteca: mostra botão Remover
                       return ElevatedButton.icon(
                         onPressed: controller.isRemoving.value ? null : () => controller.removeFromLibrary(),
                         icon: controller.isRemoving.value
@@ -114,7 +126,6 @@ class GameDetailsView extends GetView<GameDetailsController> {
                         ),
                       );
                     } else {
-                      // Jogo não está na biblioteca: mostra botão Adicionar
                       return ElevatedButton.icon(
                         onPressed: controller.isAdding.value ? null : () => controller.addToLibrary(),
                         icon: controller.isAdding.value
@@ -140,7 +151,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
 
                 const SizedBox(height: 20),
 
-                // Nome e nota
+                // Nome e nota do jogo
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -172,7 +183,32 @@ class GameDetailsView extends GetView<GameDetailsController> {
 
                 const SizedBox(height: 8),
 
-                // Datas, desenvolvedor, publicadora
+                // Dropdown para alterar status do jogo
+                PopupMenuButton<GameStatus>(
+                  tooltip: 'Alterar status',
+                  icon: Icon(
+                    Icons.flag,
+                    color: currentStatus != null ? Colors.orange : Colors.white54,
+                    size: 28,
+                  ),
+                  color: const Color(0xFF0A2A52),
+                  onSelected: (status) {
+                    if (status != null) {
+                      controller.updateStatus(status);
+                    }
+                  },
+                  itemBuilder: (context) {
+                    return GameStatus.values.map((status) {
+                      return CheckedPopupMenuItem<GameStatus>(
+                        value: status,
+                        checked: status == currentStatus,
+                        child: Text(status.name, style: const TextStyle(color: Colors.white)),
+                      );
+                    }).toList();
+                  },
+                ),
+
+                // Datas, desenvolvedores e publicadoras
                 if (game.releaseDate != null)
                   Text(
                     'Lançamento: ${game.releaseDate!.toLocal().toString().split(' ')[0]}',
@@ -256,47 +292,50 @@ class GameDetailsView extends GetView<GameDetailsController> {
                 ],
 
                 const SizedBox(height: 24),
+
+                // Capturas de tela
                 if (game.screenshots != null && game.screenshots!.isNotEmpty) ...[
-  const Text(
-    'Capturas de tela:',
-    style: TextStyle(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.w600),
-  ),
-  const SizedBox(height: 8),
-  SizedBox(
-    height: 160,
-    child: ListView.separated(
-      scrollDirection: Axis.horizontal,
-      itemCount: game.screenshots!.length,
-      separatorBuilder: (_, __) => const SizedBox(width: 8),
-      itemBuilder: (context, index) {
-        final screenshotUrl = game.screenshots![index];
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Image.network(
-            screenshotUrl.startsWith('http') ? screenshotUrl : 'https:$screenshotUrl',
-            width: 280,
-            height: 160,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator(color: Colors.white));
-            },
-            errorBuilder: (context, error, stackTrace) => Container(
-              color: Colors.black12,
-              width: 280,
-              height: 160,
-              child: const Icon(Icons.broken_image, color: Colors.white54),
-            ),
-          ),
-        );
-      },
-    ),
-  ),
-  const SizedBox(height: 24),
-],
+                  const Text(
+                    'Capturas de tela:',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 160,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: game.screenshots!.length,
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
+                      itemBuilder: (context, index) {
+                        final screenshotUrl = game.screenshots![index];
+                        return ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            screenshotUrl.startsWith('http') ? screenshotUrl : 'https:$screenshotUrl',
+                            width: 280,
+                            height: 160,
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return const Center(child: CircularProgressIndicator(color: Colors.white));
+                            },
+                            errorBuilder: (context, error, stackTrace) => Container(
+                              color: Colors.black12,
+                              width: 280,
+                              height: 160,
+                              child: const Icon(Icons.broken_image, color: Colors.white54),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ],
             ),
           );

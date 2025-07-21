@@ -189,60 +189,40 @@ class AuthService extends GetxService {
   }
 
   Future<void> deleteAccount() async {
-    // try {
-    //   isLoading(true);
-    //   print('Iniciando exclusão da conta...');
+    try {
+      isLoading(true);
+      final user = _auth.currentUser;
+      if (user == null) {
+        throw Exception('Usuário não está logado.');
+      }
 
-    //   final user = _auth.currentUser;
-    //   if (user == null) {
-    //     print('Nenhum usuário logado encontrado.');
-    //     Get.snackbar('Erro', 'Usuário não está logado.');
-    //     return;
-    //   }
+      final idToken = await user.getIdToken();
 
-    //   await user.delete();
-    //   print('Conta deletada com sucesso.');
+      // 1️⃣ Chama backend para excluir dados no banco
+      await _dio.delete(
+        '/users/me',
+        options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+      );
 
-    //   await signOut();
-    //   print('Usuário deslogado com sucesso.');
+      // 2️⃣ Exclui a conta do Firebase
+      await user.delete();
 
-    //   Get.offAllNamed('/login'); // ajuste a rota conforme seu app
-    //   print('Navegando para a tela de login.');
-    // } on FirebaseAuthException catch (e) {
-    //   print('Erro ao tentar deletar conta: [${e.code}] ${e.message}');
-    //   if (e.code == 'requires-recent-login') {
-    //     print('Tentando reautenticar via Google Sign-In...');
+      // 3️⃣ Logout local
+      await signOut();
 
-    //     try {
-    //       final googleUser = await GoogleSignIn().signIn();
-    //       if (googleUser == null) {
-    //         Get.snackbar('Erro', 'Reautenticação cancelada pelo usuário.');
-    //         return;
-    //       }
-
-    //       final googleAuth = await googleUser.authentication;
-    //       final credential = GoogleAuthProvider.credential(
-    //         accessToken: googleAuth.accessToken,
-    //         idToken: googleAuth.idToken,
-    //       );
-
-    //       await _auth.currentUser?.reauthenticateWithCredential(credential);
-    //       print('Reautenticação via Google concluída. Tentando excluir novamente...');
-
-    //       await deleteAccount(); // tenta deletar novamente após reautenticar
-    //     } catch (reauthError) {
-    //       print('Erro na reautenticação: $reauthError');
-    //       Get.snackbar('Erro', 'Falha na reautenticação. Por favor, faça login novamente.');
-    //     }
-    //   } else {
-    //     Get.snackbar('Erro', e.message ?? 'Erro ao excluir conta');
-    //   }
-    // } catch (e) {
-    //   print('Erro inesperado ao deletar conta: $e');
-    //   Get.snackbar('Erro', 'Erro inesperado ao excluir conta');
-    // } finally {
-    //   isLoading(false);
-    //   print('Processo de exclusão finalizado.');
-    // }
+      // 4️⃣ Navega para a tela de login
+      Get.offAllNamed('/login');
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        // Recomendar reautenticação e repetir processo
+        throw Exception('Reautenticação necessária para excluir conta.');
+      } else {
+        throw Exception(e.message ?? 'Erro ao excluir conta.');
+      }
+    } catch (e) {
+      throw Exception('Erro ao excluir conta: $e');
+    } finally {
+      isLoading(false);
+    }
   }
 }

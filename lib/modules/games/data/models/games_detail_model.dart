@@ -1,3 +1,4 @@
+import 'package:gamemate/modules/profile/data/models/owned_game_model.dart';
 import 'package:gamemate/utils/enums.dart'; // seu enum GameStatus
 
 class GameDetailsModel {
@@ -35,6 +36,28 @@ class GameDetailsModel {
     this.screenshots,
   });
 
+  factory GameDetailsModel.fromOwnedGame(OwnedGameModel owned) {
+    return GameDetailsModel(
+      id: owned.id,
+      name: owned.name,
+      summary: owned.summary,
+      coverUrl: owned.coverUrl,
+      rating: owned.rating,
+      releaseDate: owned.releaseDate != null ? DateTime.tryParse(owned.releaseDate!) : null,
+      genres: owned.genres,
+      platforms: owned.platforms,
+      developers: owned.developers,
+      publishers: owned.publishers,
+      isOwned: true,
+      playtimeMinutes: owned.playtimeMinutes,
+      screenshots: const [], // ajuste se possuir
+      status: GameStatus.values.firstWhere(
+        (e) => e.name == owned.status,
+        orElse: () => GameStatus.NUNCA_JOGADO, // ou o padrão desejado
+      ),
+    );
+  }
+
   factory GameDetailsModel.fromJson(Map<String, dynamic> json) {
     return GameDetailsModel(
       id: json['id'],
@@ -50,11 +73,49 @@ class GameDetailsModel {
       isOwned: json['isOwned'] ?? false,
       playtimeMinutes: json['playtimeMinutes'],
       lastPlayedAt: json['lastPlayedAt'] != null ? DateTime.tryParse(json['lastPlayedAt']) : null,
-      status: json['status'] != null ? GameStatus.values.firstWhere(
-        (e) => e.name.toLowerCase() == (json['status'] as String).toLowerCase(),
-        orElse: () => GameStatus.NUNCA_JOGADO,
-      ) : null,
-    screenshots: json['screenshots'] != null ? List<String>.from(json['screenshots']) : [],
+      status: json['status'] != null
+          ? GameStatus.values.firstWhere(
+              (e) => e.name.toLowerCase() == (json['status'] as String).toLowerCase(),
+              orElse: () => GameStatus.NUNCA_JOGADO,
+            )
+          : null,
+      screenshots: json['screenshots'] != null ? List<String>.from(json['screenshots']) : [],
+    );
+  }
+
+  GameDetailsModel copyWith({
+    String? id,
+    String? name,
+    String? summary,
+    String? coverUrl,
+    double? rating,
+    DateTime? releaseDate,
+    List<String>? genres,
+    List<String>? platforms,
+    List<String>? developers,
+    List<String>? publishers,
+    bool? isOwned,
+    int? playtimeMinutes,
+    DateTime? lastPlayedAt,
+    GameStatus? status,
+    List<String>? screenshots,
+  }) {
+    return GameDetailsModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      summary: summary ?? this.summary,
+      coverUrl: coverUrl ?? this.coverUrl,
+      rating: rating ?? this.rating,
+      releaseDate: releaseDate ?? this.releaseDate,
+      genres: genres ?? this.genres,
+      platforms: platforms ?? this.platforms,
+      developers: developers ?? this.developers,
+      publishers: publishers ?? this.publishers,
+      isOwned: isOwned ?? this.isOwned,
+      playtimeMinutes: playtimeMinutes ?? this.playtimeMinutes,
+      lastPlayedAt: lastPlayedAt ?? this.lastPlayedAt,
+      status: status ?? this.status,
+      screenshots: screenshots ?? this.screenshots,
     );
   }
 }

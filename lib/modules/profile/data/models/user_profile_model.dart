@@ -29,6 +29,9 @@ class UserProfileModel {
   final int? platinums;
   final ProfileStats? profileStats;
   final List<LinkedAccountModel> linkedAccounts;
+  final String? createdAt;
+final String? updatedAt;
+
 
   UserProfileModel({
     required this.id,
@@ -42,6 +45,8 @@ class UserProfileModel {
     this.platinums,
     this.profileStats,
     required this.linkedAccounts,
+    this.createdAt,
+    this.updatedAt,
   });
 
   factory UserProfileModel.fromMap(Map<String, dynamic> map) {
@@ -62,6 +67,8 @@ class UserProfileModel {
           ? List<LinkedAccountModel>.from(
               map['linkedAccounts'].map((x) => LinkedAccountModel.fromMap(x)))
           : [],
+      createdAt: map['createdAt'],
+      updatedAt: map['updatedAt'],
     );
   }
 }
