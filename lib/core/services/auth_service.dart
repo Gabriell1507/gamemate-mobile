@@ -10,8 +10,7 @@ class AuthService extends GetxService {
   final Dio _dio = Dio(
     BaseOptions(
       baseUrl: dotenv.env['API_URL_DEV'] ?? '',
-      connectTimeout:
-          const Duration(seconds: 10), // Timeout menor para evitar travar
+      connectTimeout: const Duration(seconds: 10),
       receiveTimeout: const Duration(seconds: 10),
     ),
   )..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
@@ -50,6 +49,9 @@ class AuthService extends GetxService {
         email: email.trim(),
         password: password,
       );
+
+      _currentUser.value = _auth.currentUser;
+
       print('[${DateTime.now()}] Login com email concluído');
       return userCredential.user;
     } on FirebaseAuthException catch (e) {
@@ -62,11 +64,8 @@ class AuthService extends GetxService {
     try {
       print('[${DateTime.now()}] Iniciando login com Google');
       final GoogleSignIn googleSignIn = GoogleSignIn();
-
-      // NÃO REMOVER O SIGNOUT FORÇADO, ele causa lentidão:
-      // await googleSignIn.signOut();
-
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
       if (googleUser == null) {
         print('[${DateTime.now()}] Login com Google cancelado pelo usuário');
         throw Exception('Login cancelado pelo usuário');
@@ -84,8 +83,10 @@ class AuthService extends GetxService {
 
       final UserCredential userCredential =
           await _auth.signInWithCredential(credential);
-      print('[${DateTime.now()}] Login Firebase via Google concluído');
 
+      _currentUser.value = _auth.currentUser;
+
+      print('[${DateTime.now()}] Login Firebase via Google concluído');
       return userCredential;
     } catch (e) {
       print('[${DateTime.now()}] Erro no login com Google: $e');
@@ -108,6 +109,7 @@ class AuthService extends GetxService {
 
       final User? user = userCredential.user;
       if (user != null) {
+        _currentUser.value = _auth.currentUser;
         print(
             '[${DateTime.now()}] Usuário Firebase criado, registrando no backend...');
         await _registerUserLocally(user: user, username: userModel.username);
@@ -198,19 +200,15 @@ class AuthService extends GetxService {
 
       final idToken = await user.getIdToken();
 
-      // 1️⃣ Chama backend para excluir dados no banco
       await _dio.delete(
         '/users/me',
         options: Options(headers: {'Authorization': 'Bearer $idToken'}),
       );
 
-      // 2️⃣ Exclui a conta do Firebase
-      await user.delete();
+      
 
-      // 3️⃣ Logout local
       await signOut();
 
-      // 4️⃣ Navega para a tela de login
       Get.offAllNamed('/login');
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {

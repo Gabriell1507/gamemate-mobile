@@ -9,12 +9,22 @@ class ProfileStats {
     required this.totalHoursPlayed,
   });
 
-  factory ProfileStats.fromMap(Map<String, dynamic> map) {
-    return ProfileStats(
-      totalGames: map['totalGames'] ?? 0,
-      totalHoursPlayed: map['totalHoursPlayed'] ?? 0,
-    );
+factory ProfileStats.fromMap(Map<String, dynamic> map) {
+  final dynamic hours = map['totalHoursPlayed'];
+  int totalHours = 0;
+  if (hours is int) {
+    totalHours = hours;
+  } else if (hours is double) {
+    totalHours = hours.round();
+  } else if (hours is String) {
+    totalHours = int.tryParse(hours) ?? 0;
   }
+
+  return ProfileStats(
+    totalGames: map['totalGames'] ?? 0,
+    totalHoursPlayed: totalHours,
+  );
+}
 }
 
 class UserProfileModel {

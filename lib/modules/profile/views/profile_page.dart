@@ -31,8 +31,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
-    // Evita chamadas duplicadas em cada build
-    controller.initializeProfileData();
   }
 
   @override
@@ -52,10 +50,31 @@ class _ProfilePageState extends State<ProfilePage> {
           final profile = controller.userProfile.value;
 
           if (profile == null) {
-            return const Center(
-              child: Text(
-                'Nenhum perfil carregado',
-                style: TextStyle(color: Colors.white70, fontSize: 16),
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Nenhum perfil carregado',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                  const SizedBox(height: 12),
+                  ElevatedButton(
+                    onPressed: () => controller.initializeProfileData(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orangeAccent,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Tentar recarregar',
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ),
+                ],
               ),
             );
           }
@@ -82,7 +101,8 @@ class _ProfilePageState extends State<ProfilePage> {
                         CircleAvatar(
                           radius: 28,
                           backgroundColor: Colors.white12,
-                          backgroundImage: NetworkImage(controller.avatarUrl.value),
+                          backgroundImage:
+                              NetworkImage(controller.avatarUrl.value),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -113,7 +133,9 @@ class _ProfilePageState extends State<ProfilePage> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  controller.bio.value.isNotEmpty ? controller.bio.value : '...',
+                                  controller.bio.value.isNotEmpty
+                                      ? controller.bio.value
+                                      : '...',
                                   style: const TextStyle(color: Colors.white70),
                                 ),
                               ),
@@ -154,6 +176,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       _buildStatBox('Platinados', controller.platinums),
                     ],
                   ),
+
+                  const SizedBox(height: 24),
+
+                  // --- Botão Mostrar dados do perfil ---
+                  
 
                   const SizedBox(height: 24),
 
@@ -235,14 +262,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               backgroundColor: isLinked
                                   ? Colors.green
                                   : const Color.fromRGBO(34, 132, 230, 1),
-                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 8),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
                             ),
                             child: Text(
                               isLinked ? 'Vinculado' : 'Vincular',
-                              style: const TextStyle(fontSize: 12, color: Colors.white),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.white),
                             ),
                           ),
                         ),
@@ -276,17 +305,22 @@ class _ProfilePageState extends State<ProfilePage> {
                           children: [
                             Obx(() => Checkbox(
                                   value: controller.confirmDelete.value,
-                                  onChanged: (val) =>
-                                      controller.confirmDelete.value = val ?? false,
-                                  fillColor: MaterialStateProperty.resolveWith<Color>((states) {
-                                    if (states.contains(MaterialState.selected)) {
-                                      return const Color.fromRGBO(34, 132, 230, 1);
+                                  onChanged: (val) => controller
+                                      .confirmDelete.value = val ?? false,
+                                  fillColor:
+                                      MaterialStateProperty.resolveWith<Color>(
+                                          (states) {
+                                    if (states
+                                        .contains(MaterialState.selected)) {
+                                      return const Color.fromRGBO(
+                                          34, 132, 230, 1);
                                     }
                                     return Colors.white;
                                   }),
                                   checkColor: Colors.white,
                                 )),
-                            const Text('Tenho certeza', style: TextStyle(color: Colors.white)),
+                            const Text('Tenho certeza',
+                                style: TextStyle(color: Colors.white)),
                           ],
                         ),
                         const SizedBox(height: 8),
@@ -295,19 +329,22 @@ class _ProfilePageState extends State<ProfilePage> {
                               child: ElevatedButton(
                                 onPressed: controller.confirmDelete.value
                                     ? () async {
-                                        await controller.unlinkSteamAccount();
+                                       
                                         await authService.deleteAccount();
                                       }
                                     : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.red,
-                                  disabledBackgroundColor: Colors.red.withOpacity(0.5),
-                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  disabledBackgroundColor:
+                                      Colors.red.withOpacity(0.5),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 12),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
-                                child: const Text('Excluir', style: TextStyle(color: Colors.white)),
+                                child: const Text('Excluir',
+                                    style: TextStyle(color: Colors.white)),
                               ),
                             )),
                       ],

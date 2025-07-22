@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gamemate/core/services/auth_service.dart';
 import 'package:gamemate/widgets/bottom_navigation.dart';
-import 'package:gamemate/widgets/game_card.dart';
-import 'package:get/get.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:gamemate/widgets/featured_carousel.dart';
+import 'package:get/get.dart';
 import '../controllers/games_controller.dart';
 
 class GamesView extends StatefulWidget {
@@ -18,31 +17,29 @@ class _GamesViewState extends State<GamesView> {
   final GamesController _controller = Get.find<GamesController>();
   final TextEditingController _searchController = TextEditingController();
 
-
   Future<void> _onSearchSubmitted(String query) async {
-  if (query.trim().isEmpty) return;
+    if (query.trim().isEmpty) return;
 
-  _controller.isLoading.value = true;
-  await _controller.searchGames(query.trim());
-  _controller.isLoading.value = false;
+    _controller.isLoading.value = true;
+    await _controller.searchGames(query.trim());
+    _controller.isLoading.value = false;
 
-  if (_controller.searchResults.isEmpty) {
-    Get.snackbar(
-      'Nenhum resultado',
-      'Nenhum jogo encontrado para "$query"',
-      backgroundColor: Colors.red,
-      colorText: Colors.white,
-    );
-  } else {
-    // Passa lista como argumento para a próxima tela
-    Get.toNamed('/result-page', arguments: {
-      'results': _controller.searchResults.toList(),
-      'query': query.trim(),
-    });
+    if (_controller.searchResults.isEmpty) {
+      Get.snackbar(
+        'Nenhum resultado',
+        'Nenhum jogo encontrado para "$query"',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    } else {
+      Get.toNamed('/result-page', arguments: {
+        'results': _controller.searchResults.toList(),
+        'query': query.trim(),
+      });
+    }
+
+    _searchController.clear();
   }
-
-  _searchController.clear();
-}
 
   @override
   void dispose() {
@@ -83,15 +80,15 @@ class _GamesViewState extends State<GamesView> {
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
-                    contentPadding:
-                        const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0, horizontal: 20),
                   ),
                   onSubmitted: _onSearchSubmitted,
                 ),
 
                 const SizedBox(height: 16),
 
-                // Seção: Especiais da semana com dois divisores
+                // === ESPECIAIS DA SEMANA ===
                 const Row(
                   children: [
                     SizedBox(
@@ -126,7 +123,7 @@ class _GamesViewState extends State<GamesView> {
 
                 const SizedBox(height: 20),
 
-                // Seção: Seus jogos
+                // === SEUS JOGOS ===
                 const Row(
                   children: [
                     SizedBox(
@@ -158,40 +155,63 @@ class _GamesViewState extends State<GamesView> {
                 const SizedBox(height: 10),
 
                 Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        SvgPicture.asset(
-                          'assets/gamepad.svg',
-                          height: 50,
-                        ),
-                        const SizedBox(height: 10),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16),
-                          child: Text(
-                            "Adicione alguns jogos vinculando suas contas no perfil ou pesquisando individualmente!",
-                            style: TextStyle(
-                              color: Color.fromRGBO(34, 132, 230, 1),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 20,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      
-                      ],
-                    ),
-                  ),
-                ),
+  child: Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        SvgPicture.asset(
+          'assets/gamepad.svg',
+          height: 50,
+        ),
+        const SizedBox(height: 10),
+        // const Padding(
+        //   padding: EdgeInsets.symmetric(horizontal: 16),
+        //   child: Text(
+        //     "Adicione alguns jogos vinculando suas contas no perfil ou pesquisando individualmente!",
+        //     style: TextStyle(
+        //       color: Color.fromRGBO(34, 132, 230, 1),
+        //       fontWeight: FontWeight.w500,
+        //       fontSize: 20,
+        //     ),
+        //     textAlign: TextAlign.center,
+        //   ),
+        // ),
+        const SizedBox(height: 24), // espaçamento maior para evitar quebra
+
+        ElevatedButton.icon(
+          onPressed: () async {
+            final authService = Get.find<AuthService>();
+            await authService.signOut();
+            Get.offAllNamed('/login');
+          },
+          icon: const Icon(Icons.logout, color: Colors.white),
+          label: const Text(
+            'Sair',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF2284E6),
+            foregroundColor: Colors.white,
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(30),
+            ),
+          ),
+        ),
+      ],
+    ),
+  ),
+),
+
               ],
             );
           }),
         ),
       ),
       bottomNavigationBar: const CustomBottomBar(),
-
     );
   }
-
 }

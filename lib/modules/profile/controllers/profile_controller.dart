@@ -89,14 +89,15 @@ class ProfileController extends GetxController {
     try {
       isLoading(true);
       userProfile.value = await profileProvider.fetchUserProfile(token);
+updateProfileFromModel(); // 🚩 garante atualização automática
 
-      // Atualiza contas vinculadas
-      if (userProfile.value != null) {
-        for (var platform in linkedAccounts.keys) {
-          linkedAccounts[platform]?.value = userProfile.value!.linkedAccounts
-              .any((acc) => acc.provider.toLowerCase() == platform.toLowerCase());
-        }
-      }
+// Atualiza contas vinculadas
+if (userProfile.value != null) {
+  for (var platform in linkedAccounts.keys) {
+    linkedAccounts[platform]?.value = userProfile.value!.linkedAccounts
+        .any((acc) => acc.provider.toLowerCase() == platform.toLowerCase());
+  }
+}
     } finally {
       isLoading(false);
     }
@@ -117,45 +118,49 @@ class ProfileController extends GetxController {
   }
 
   /// Carrega os jogos sincronizados, com paginação e filtro de status
-Future<void> loadSyncedGames({bool reset = false}) async {
-  if (isLoadingMore.value) return;
+  Future<void> loadSyncedGames({bool reset = false}) async {
+    if (isLoadingMore.value) return;
 
-  if (reset) {
-    currentPage.value = 0; // Use skip/take, não page
-    syncedGames.clear();
-    hasMore.value = true;
-  }
-  if (!hasMore.value) return;
-
-  isLoadingMore.value = true;
-
-  try {
-    final user = FirebaseAuth.instance.currentUser;
-    final idToken = await user?.getIdToken();
-    if (idToken == null) throw Exception('Usuário não autenticado.');
-
-    final gamesResponse = await _apiService.fetchUserOwnedGames(
-      idToken: idToken,
-      skip: currentPage.value * pageSize,
-      take: pageSize,
-      statusFilter: filterStatus.value?.name,
-    );
-
-    syncedGames.addAll(gamesResponse.data);
-
-    if (!gamesResponse.hasNextPage || gamesResponse.data.isEmpty) {
-      hasMore.value = false;
-    } else {
-      currentPage.value += 1;
+    if (reset) {
+      currentPage.value = 0; // Use skip/take, não page
+      syncedGames.clear();
+      hasMore.value = true;
     }
+    if (!hasMore.value) return;
 
-  } catch (e) {
-    Get.snackbar('Erro', e.toString());
-  } finally {
-    isLoadingMore.value = false;
+    isLoadingMore.value = true;
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      final idToken = await user?.getIdToken();
+      if (idToken == null) throw Exception('Usuário não autenticado.');
+
+      final gamesResponse = await _apiService.fetchUserOwnedGames(
+        idToken: idToken,
+        skip: currentPage.value * pageSize,
+        take: pageSize,
+        statusFilter: filterStatus.value?.name,
+      );
+
+      syncedGames.addAll(gamesResponse.data);
+
+      if (!gamesResponse.hasNextPage || gamesResponse.data.isEmpty) {
+        hasMore.value = false;
+      } else {
+        currentPage.value += 1;
+      }
+    } catch (e) {
+      Get.snackbar(
+  'Erro',
+  e.toString().replaceAll('Exception:', '').trim().isNotEmpty
+      ? e.toString().replaceAll('Exception:', '').trim()
+      : 'Ocorreu um erro inesperado. Tente novamente.',
+);
+
+    } finally {
+      isLoadingMore.value = false;
+    }
   }
-}
-
 
   // Método para setar filtro e recarregar a lista
   void setFilter(GameStatus? status) {
@@ -206,10 +211,11 @@ Future<void> loadSyncedGames({bool reset = false}) async {
     bio.value = profile.bio ?? '';
     avatarUrl.value = profile.avatarUrl?.isNotEmpty == true
         ? profile.avatarUrl!
-        : "https://i.imgur.com/4Zb1z5H.png";
+        : "https://imgur.com/gallery/default-profile-image-JAvXY#jNNT4LE";
 
     games.value = profile.profileStats?.totalGames ?? 0;
     hoursPlayed.value = profile.profileStats?.totalHoursPlayed ?? 0;
+    print("totalGames: ${profile.profileStats?.totalGames}, totalHoursPlayed: ${profile.profileStats?.totalHoursPlayed}");
   }
 
   // Inicializa o perfil e jogos ao iniciar

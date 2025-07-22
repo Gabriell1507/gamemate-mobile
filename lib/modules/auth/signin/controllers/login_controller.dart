@@ -34,6 +34,7 @@ class LoginController extends GetxController {
   }
 
   Future<void> loginWithEmail() async {
+    FocusScope.of(Get.context!).unfocus();
     showError.value = true;
 
     if (email.value.isEmpty) emailError.value = 'Email é obrigatório';
@@ -43,22 +44,25 @@ class LoginController extends GetxController {
 
     try {
       isLoading.value = true;
-      User? user = await _authService.signInWithEmailAndPassword(
+      await _authService.signInWithEmailAndPassword(
         email: email.value.trim(),
         password: password.value,
       );
 
-      if (user != null) {
-        Get.offAllNamed('/home');
-      }
+      Get.offAllNamed('/home');
     } catch (e) {
-      Get.snackbar('Erro', e.toString().replaceAll('Exception:', '').trim());
+      Get.snackbar(
+        'Erro',
+        e.toString().replaceAll('Exception:', '').trim(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
   }
 
   Future<void> loginWithGoogle() async {
+    FocusScope.of(Get.context!).unfocus();
     try {
       isLoading.value = true;
       UserCredential userCredential = await _authService.signInWithGoogle();
@@ -81,7 +85,11 @@ class LoginController extends GetxController {
         Get.offAllNamed('/home');
       }
     } catch (e) {
-      Get.snackbar('Erro', e.toString().replaceAll('Exception:', '').trim());
+      Get.snackbar(
+        'Erro',
+        e.toString().replaceAll('Exception:', '').trim(),
+        snackPosition: SnackPosition.BOTTOM,
+      );
     } finally {
       isLoading.value = false;
     }
