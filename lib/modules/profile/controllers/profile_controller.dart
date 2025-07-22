@@ -35,6 +35,8 @@ class ProfileController extends GetxController {
   final RxInt currentPage = 1.obs;
   final int pageSize = 20;
   final Rx<GameStatus?> filterStatus = Rx<GameStatus?>(null);
+  final Rxn<Provider> filterProvider = Rxn<Provider>();
+
 
   final ApiService _apiService = ApiService();
 
@@ -140,6 +142,7 @@ if (userProfile.value != null) {
         skip: currentPage.value * pageSize,
         take: pageSize,
         statusFilter: filterStatus.value?.name,
+        providerFilter: filterProvider.value?.name,
       );
 
       syncedGames.addAll(gamesResponse.data);
@@ -167,6 +170,12 @@ if (userProfile.value != null) {
     filterStatus.value = status;
     loadSyncedGames(reset: true);
   }
+  
+  void setProviderFilter(Provider? provider) {
+  filterProvider.value = provider;
+  loadSyncedGames(reset: true);
+}
+
 
   // Abre link de autenticação Steam
   Future<void> openSteamLink() async {

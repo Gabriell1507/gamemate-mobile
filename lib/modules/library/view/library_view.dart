@@ -117,6 +117,30 @@ class _LibraryViewState extends State<LibraryView> {
                   },
                 );
               }),
+              Obx(() {
+  return DropdownButton<Provider?>(
+    value: profileController.filterProvider.value,
+    dropdownColor: const Color(0xFF0A2A52),
+    style: const TextStyle(color: Colors.white),
+    hint: const Text('Filtrar por plataforma', style: TextStyle(color: Colors.white)),
+    items: [
+      const DropdownMenuItem(
+        value: null,
+        child: Text('Todas as plataformas'),
+      ),
+      ...Provider.values.map(
+        (provider) => DropdownMenuItem(
+          value: provider,
+          child: Text(provider.name),
+        ),
+      )
+    ],
+    onChanged: (provider) {
+      profileController.setProviderFilter(provider);
+      profileController.loadSyncedGames(reset: true);
+    },
+  );
+}),
 
               const SizedBox(height: 16),
 
