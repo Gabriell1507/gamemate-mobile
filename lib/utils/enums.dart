@@ -7,6 +7,25 @@ enum GameStatus {
   PROXIMO,
 }
 
+extension GameStatusExtension on GameStatus {
+  String get label {
+    switch (this) {
+      case GameStatus.ZERADO:
+        return 'Zerado';
+      case GameStatus.JOGANDO:
+        return 'Jogando';
+      case GameStatus.NUNCA_JOGADO:
+        return 'Nunca Jogado';
+      case GameStatus.DROPADO:
+        return 'Dropado';
+      case GameStatus.PLATINADO:
+        return 'Platinado';
+      case GameStatus.PROXIMO:
+        return 'Próximo';
+    }
+  }
+}
+
 enum Provider {
   STEAM,
   GOG,
