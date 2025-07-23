@@ -16,6 +16,56 @@ class _ProfilePageState extends State<ProfilePage> {
   final ProfileController controller = Get.find();
   final AuthService authService = Get.find<AuthService>();
 
+  void _showEditNameDialog() {
+  final TextEditingController nameController = TextEditingController(
+    text: controller.userProfile.value?.name ?? '',
+  );
+
+  Get.defaultDialog(
+    title: 'Editar Nome',
+    backgroundColor: const Color(0xFF001F3F),
+    titleStyle: const TextStyle(color: Colors.white),
+    content: Column(
+      children: [
+        TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Novo nome',
+            labelStyle: TextStyle(color: Colors.white70),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white24),
+            ),
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(color: Colors.white),
+            ),
+          ),
+          style: const TextStyle(color: Colors.white),
+        ),
+        const SizedBox(height: 16),
+        SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            onPressed: () async {
+              final newName = nameController.text.trim();
+              if (newName.length < 3) {
+                Get.snackbar('Erro', 'O nome deve ter pelo menos 3 caracteres.');
+                return;
+              }
+              Get.back(); // fecha o dialog
+              await controller.updateUserName(newName);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color.fromRGBO(34, 132, 230, 1),
+            ),
+            child: const Text('Salvar', style: TextStyle(color: Colors.white)),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+
   final Map<String, String> platformAssets = {
     'Steam': 'assets/platforms/steam.svg',
     'Epic': 'assets/platforms/epic.svg',
@@ -118,27 +168,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
-                                'Level: ${controller.level.value}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withOpacity(0.5),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  controller.bio.value.isNotEmpty
-                                      ? controller.bio.value
-                                      : '...',
-                                  style: const TextStyle(color: Colors.white70),
-                                ),
-                              ),
+                              // Text(
+                              //   'Level: ${controller.level.value}',
+                              //   style: const TextStyle(
+                              //     color: Colors.white,
+                              //     fontWeight: FontWeight.w500,
+                              //   ),
+                              // ),
+                              // const SizedBox(height: 8),
+                              // Container(
+                              //   padding: const EdgeInsets.all(8),
+                              //   decoration: BoxDecoration(
+                              //     color: Colors.black.withOpacity(0.5),
+                              //     borderRadius: BorderRadius.circular(8),
+                              //   ),
+                              //   child: Text(
+                              //     controller.bio.value.isNotEmpty
+                              //         ? controller.bio.value
+                              //         : '...',
+                              //     style: const TextStyle(color: Colors.white70),
+                              //   ),
+                              // ),
                             ],
                           ),
                         ),
@@ -169,13 +219,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildStatBox('Conquistas', controller.achievements),
-                      _buildStatBox('Platinados', controller.platinums),
-                    ],
-                  ),
+                  // Row(
+                  //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //   children: [
+                  //     _buildStatBox('Conquistas', controller.achievements),
+                  //     _buildStatBox('Platinados', controller.platinums),
+                  //   ],
+                  // ),
 
                   const SizedBox(height: 24),
 
@@ -189,7 +239,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        // TODO: Implementar ação de editar perfil
+                        _showEditNameDialog();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color.fromRGBO(34, 132, 230, 1),

@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gamemate/modules/games/data/dtos/update_user_profile_dto.dart';
 import 'package:gamemate/modules/games/data/providers/games_provider.dart';
 import 'package:gamemate/modules/profile/data/models/owned_game_model.dart';
 import 'package:gamemate/modules/profile/data/models/user_profile_model.dart';
@@ -174,6 +175,42 @@ if (userProfile.value != null) {
   void setProviderFilter(Provider? provider) {
   filterProvider.value = provider;
   loadSyncedGames(reset: true);
+}
+
+Future<void> updateUserName(String newName) async {
+  final token = await getIdToken();
+  if (token == null) {
+    Get.snackbar('Erro', 'Usuário não autenticado.');
+    return;
+  }
+
+  if (newName.trim().length < 3) {
+    Get.snackbar('Erro', 'O nome deve ter pelo menos 3 caracteres.');
+    return;
+  }
+
+  try {
+    isLoading(true);
+
+    final updated = await profileProvider.updateUserProfile(
+      UpdateUserProfileDto(name: newName.trim()),
+      token,
+    );
+
+    userProfile.value = updated;
+    updateProfileFromModel();
+
+    Get.snackbar('Sucesso', 'Nome atualizado com sucesso!');
+  } catch (e) {
+    Get.snackbar(
+      'Erro',
+      e.toString().replaceAll('Exception:', '').trim().isNotEmpty
+          ? e.toString().replaceAll('Exception:', '').trim()
+          : 'Ocorreu um erro inesperado ao atualizar o nome.',
+    );
+  } finally {
+    isLoading(false);
+  }
 }
 
 

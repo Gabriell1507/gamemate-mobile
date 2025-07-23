@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gamemate/modules/games/data/dtos/update_user_profile_dto.dart';
 import 'package:gamemate/modules/profile/data/models/owned_game_model.dart';
 import 'package:gamemate/modules/profile/data/models/user_profile_model.dart';
 
@@ -41,6 +42,17 @@ class ProfileProvider {
       options: Options(headers: {'Authorization': 'Bearer $token'}),
     );
   }
+
+
+Future<UserProfileModel> updateUserProfile(UpdateUserProfileDto dto, String token) async {
+  final response = await _dio.patch(
+    '/users/me',
+    data: dto.toJson(),
+    options: Options(headers: {'Authorization': 'Bearer $token'}),
+  );
+  return UserProfileModel.fromMap(response.data);
+}
+
 
   Future<List<OwnedGameModel>> fetchSyncedGames(String token) async {
     final response = await _dio.get(
