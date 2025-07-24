@@ -18,7 +18,7 @@ class LibraryCarousel extends StatelessWidget {
 
     if (allGames.isEmpty && !controller.isLoadingMore.value) {
       return const Column(
-        children:  [
+        children: [
           SizedBox(height: 12),
           Text(
             'Nenhum jogo encontrado.',
@@ -40,34 +40,19 @@ class LibraryCarousel extends StatelessWidget {
             ? 'https:${game.coverUrl}'
             : (game.coverUrl ?? '');
 
-        return GestureDetector(
-          onTap: () async {
-            try {
+        return Container(
+          width: _carouselItemWidth,
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          child: SteamGameCard(
+            name: game.name,
+            coverUrl: coverUrl,
+            onTap: () {
               if (game.id.isEmpty) {
                 Get.snackbar('Erro', 'UUID do jogo não encontrado.');
                 return;
               }
-      
-              final uuid = game.id;
-
-              if (uuid.isNotEmpty) {
-                Get.toNamed('/game-detail', arguments: {'uuid': uuid});
-              } else {
-                Get.snackbar('Erro', 'UUID não encontrado para o jogo.');
-              }
-            } catch (e) {
-              print('Erro ao abrir detalhes do jogo: $e');
-              Get.snackbar('Erro', 'Não foi possível abrir os detalhes do jogo.');
-            }
-          },
-          child: Container(
-            width: _carouselItemWidth,
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            child: SteamGameCard(
-              name: game.name,
-              coverUrl: coverUrl,
-              onTap: () {}, 
-            ),
+              Get.toNamed('/game-detail', arguments: {'uuid': game.id});
+            },
           ),
         );
       },

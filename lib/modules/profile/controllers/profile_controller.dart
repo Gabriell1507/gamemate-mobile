@@ -199,6 +199,7 @@ Future<void> updateUserName(String newName) async {
 
     userProfile.value = updated;
     updateProfileFromModel();
+    await initializeProfileData();
 
     Get.snackbar('Sucesso', 'Nome atualizado com sucesso!');
   } catch (e) {
