@@ -247,6 +247,33 @@ Future<void> updateUserName(String newName) async {
     }
   }
 
+  Future<void> reloadSteamAccount() async {
+  final token = await getIdToken();
+  if (token == null) {
+    Get.snackbar('Erro', 'Usuário não autenticado.');
+    return;
+  }
+
+  try {
+    isLoading(true);
+    await profileProvider.reloadSteam(token);
+    await loadUserProfile();
+    await loadSyncedGames(reset: true);
+    await initializeProfileData();
+    Get.snackbar('Sucesso', 'Sincronização com a Steam concluída!');
+  } catch (e) {
+    Get.snackbar(
+      'Erro ao sincronizar Steam',
+      e.toString().replaceAll('Exception:', '').trim().isNotEmpty
+          ? e.toString().replaceAll('Exception:', '').trim()
+          : 'Ocorreu um erro ao sincronizar sua conta Steam.',
+    );
+  } finally {
+    isLoading(false);
+  }
+}
+
+
   // Atualiza os valores do perfil reativo
   void updateProfileFromModel() {
     final profile = userProfile.value;

@@ -24,8 +24,8 @@ Widget build(BuildContext context) {
   return AnnotatedRegion<SystemUiOverlayStyle>(
     value: const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light, // ícones brancos
-      statusBarBrightness: Brightness.light, // para iOS
+      statusBarIconBrightness: Brightness.light, 
+      statusBarBrightness: Brightness.light,
     ),
     child: GetMaterialApp(
       title: 'GameMate',

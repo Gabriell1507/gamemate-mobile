@@ -43,6 +43,12 @@ class ProfileProvider {
     );
   }
 
+  Future<void> reloadSteam(String token) async {
+    await _dio.post(
+     '/users/me/linked-accounts/steam/sync',
+      options: Options(headers: {'Authorization': 'Bearer $token'}),
+    );
+  }
 
 Future<UserProfileModel> updateUserProfile(UpdateUserProfileDto dto, String token) async {
   final response = await _dio.patch(
