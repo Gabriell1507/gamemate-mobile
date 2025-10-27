@@ -15,17 +15,18 @@ class ApiService {
     ),
   )..interceptors.add(LogInterceptor(requestBody: true, responseBody: true));
 
-Future<List<IGDBGame>> searchGames(String query) async {
-  try {
-    final response = await _dio.get('/games/search', queryParameters: {'q': query});
-    print('Resposta API searchGames: ${response.data}');
-    final List data = response.data as List;
-    // Usa fromSearchJson para search
-    return data.map((e) => IGDBGame.fromSearchJson(e)).toList();
-  } on DioException {
-    rethrow;
+  Future<List<IGDBGame>> searchGames(String query) async {
+    try {
+      final response =
+          await _dio.get('/games/search', queryParameters: {'q': query});
+      print('Resposta API searchGames: ${response.data}');
+      final List data = response.data as List;
+      // Usa fromSearchJson para search
+      return data.map((e) => IGDBGame.fromSearchJson(e)).toList();
+    } on DioException {
+      rethrow;
+    }
   }
-}
 
   Future<void> addGameToLibraryWithProvider(
       String gameId, String idToken, Provider provider) async {
@@ -56,16 +57,16 @@ Future<List<IGDBGame>> searchGames(String query) async {
     }
   }
 
-Future<List<IGDBGame>> getFeaturedGames() async {
-  try {
-    final response = await _dio.get('/games/featured');
-    final List data = response.data as List;
-    // Usa fromJson para featured
-    return data.map((e) => IGDBGame.fromJson(e)).toList();
-  } on DioException {
-    rethrow;
+  Future<List<IGDBGame>> getFeaturedGames() async {
+    try {
+      final response = await _dio.get('/games/featured');
+      final List data = response.data as List;
+      // Usa fromJson para featured
+      return data.map((e) => IGDBGame.fromJson(e)).toList();
+    } on DioException {
+      rethrow;
+    }
   }
-}
 
   Future<String> resolveGameId({String? igdbId, String? steamAppId}) async {
     try {
@@ -123,83 +124,77 @@ Future<List<IGDBGame>> getFeaturedGames() async {
 //   return dataList.map((json) => OwnedGameModel.fromMap(json)).toList();
 // }
 
+  Future<void> updateGameStatus(
+    String gameId,
+    String status,
+    String idToken,
+  ) async {
+    try {
+      final response = await _dio.put(
+        '/users/me/games/$gameId/status',
+        data: {'status': status},
+        options: Options(
+          headers: {'Authorization': 'Bearer $idToken'},
+        ),
+      );
 
-Future<void> updateGameStatus(
-  String gameId,
-  String status,
-  String idToken,
-) async {
-  try {
-    final response = await _dio.put(
-      '/users/me/games/$gameId/status',
-      data: {'status': status},
-      options: Options(
-        headers: {'Authorization': 'Bearer $idToken'},
-      ),
-    );
-
-    if (response.statusCode != 204) {
-      throw Exception('Erro inesperado: statusCode ${response.statusCode}');
-    }
-    // Não tenta acessar response.data aqui pois não tem
-  } on DioException catch (e) {
-    if (e.response != null) {
-      final message = e.response?.data['message'] ?? 'Erro ao atualizar status.';
-      throw Exception(message);
-    } else {
-      throw Exception('Erro de conexão.');
-    }
-  }
-}
-
-
-
-
-
-
-Future<PaginatedGamesResponse> fetchUserOwnedGames({
-  required String idToken,
-  int skip = 0,
-  int take = 20,
-  String? nameFilter,
-  String? statusFilter,
-  String? providerFilter,
-}) async {
-  final queryParameters = <String, dynamic>{
-    'skip': skip,
-    'take': take,
-  };
-
-  if (nameFilter != null && nameFilter.isNotEmpty) {
-    queryParameters['name'] = nameFilter;
-  }
-  if (statusFilter != null && statusFilter.isNotEmpty) {
-    queryParameters['status'] = statusFilter;
-  }
-  if (providerFilter != null && providerFilter.isNotEmpty) {
-    queryParameters['provider'] = providerFilter;
-  }
-
-  try {
-    final response = await _dio.get(
-      '/users/me/games',
-      queryParameters: queryParameters,
-      options: Options(
-        headers: {'Authorization': 'Bearer $idToken'},
-      ),
-    );
-
-    return PaginatedGamesResponse.fromMap(response.data);
-  } on DioException catch (e) {
-    if (e.response != null) {
-      final message = e.response?.data['message'] ?? 'Erro ao buscar jogos.';
-      throw Exception(message);
-    } else {
-      throw Exception('Erro de conexão.');
+      if (response.statusCode != 204) {
+        throw Exception('Erro inesperado: statusCode ${response.statusCode}');
+      }
+      // Não tenta acessar response.data aqui pois não tem
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message =
+            e.response?.data['message'] ?? 'Erro ao atualizar status.';
+        throw Exception(message);
+      } else {
+        throw Exception('Erro de conexão.');
+      }
     }
   }
-}
 
+  Future<PaginatedGamesResponse> fetchUserOwnedGames({
+    required String idToken,
+    int skip = 0,
+    int take = 20,
+    String? nameFilter,
+    String? statusFilter,
+    String? providerFilter,
+  }) async {
+    final queryParameters = <String, dynamic>{
+      'skip': skip,
+      'take': take,
+    };
+
+    if (nameFilter != null && nameFilter.isNotEmpty) {
+      queryParameters['name'] = nameFilter;
+    }
+    if (statusFilter != null && statusFilter.isNotEmpty) {
+      queryParameters['status'] = statusFilter;
+    }
+    if (providerFilter != null && providerFilter.isNotEmpty) {
+      queryParameters['provider'] = providerFilter;
+    }
+
+    try {
+      final response = await _dio.get(
+        '/users/me/games',
+        queryParameters: queryParameters,
+        options: Options(
+          headers: {'Authorization': 'Bearer $idToken'},
+        ),
+      );
+
+      return PaginatedGamesResponse.fromMap(response.data);
+    } on DioException catch (e) {
+      if (e.response != null) {
+        final message = e.response?.data['message'] ?? 'Erro ao buscar jogos.';
+        throw Exception(message);
+      } else {
+        throw Exception('Erro de conexão.');
+      }
+    }
+  }
 
   Future<void> removeGameFromLibrary(String gameId, String idToken) async {
     try {
