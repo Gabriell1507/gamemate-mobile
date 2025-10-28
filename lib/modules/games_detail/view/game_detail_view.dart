@@ -330,7 +330,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
                                       : 'Remover da Biblioteca',
                                   style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w700),
                                 ),
                                 style: ElevatedButton.styleFrom(
@@ -353,7 +353,7 @@ class GameDetailsView extends GetView<GameDetailsController> {
                                       : 'Adicionar à Biblioteca',
                                   style: const TextStyle(
                                       color: Colors.white,
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w700),
                                 ),
                                 style: ElevatedButton.styleFrom(
