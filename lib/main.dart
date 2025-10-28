@@ -5,7 +5,7 @@ import 'package:gamemate/core/services/auth_service.dart';
 import 'package:gamemate/routes/routes.dart';
 import 'package:get/get.dart';
 import 'package:flutter/services.dart';
-
+import 'package:device_preview/device_preview.dart';
  
 
 Future<void> main() async {
@@ -13,7 +13,12 @@ Future<void> main() async {
   await Firebase.initializeApp();
   await dotenv.load(fileName: '.env');
   Get.put(AuthService());
-  runApp(const GameMateApp());
+  runApp(
+    DevicePreview(
+      enabled: true,
+      builder: (context) => const GameMateApp(),
+    ),
+  );
 }
 
 class GameMateApp extends StatelessWidget {
