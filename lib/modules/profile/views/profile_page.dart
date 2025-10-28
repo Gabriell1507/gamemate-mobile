@@ -545,7 +545,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           backgroundColor: const Color(0xFF2284E6),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 12),
+                              horizontal: 22, vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
@@ -566,7 +566,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildStatBox(String title, RxInt value) {
     return Container(
-      width: 154,
+      width: 140,
       height: 80,
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       decoration: BoxDecoration(
