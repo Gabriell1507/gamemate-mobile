@@ -74,4 +74,30 @@ Future<UserProfileModel> updateUserProfile(UpdateUserProfileDto dto, String toke
     final List<dynamic> gamesJsonList = data['data'];
     return gamesJsonList.map((json) => OwnedGameModel.fromMap(json)).toList();
   }
+
+
+  Future<String?> uploadAvatar(String token, String filePath) async {
+  try {
+    final formData = FormData.fromMap({
+      'file': await MultipartFile.fromFile(filePath),
+    });
+
+    final response = await _dio.post(
+      '/users/me/avatar',
+      data: formData,
+      options: Options(headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'multipart/form-data',
+      }),
+    );
+
+    return response.data['avatarUrl'];
+  } on DioException catch (e) {
+    throw Exception(
+      e.response?.data?['message'] ?? 'Erro ao enviar foto de perfil.',
+    );
+  }
 }
+
+}
+  

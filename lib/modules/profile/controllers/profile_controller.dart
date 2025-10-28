@@ -8,6 +8,9 @@ import 'package:gamemate/utils/enums.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+
 
 class ProfileController extends GetxController {
   // Dados básicos do perfil
@@ -291,6 +294,7 @@ Future<void> updateUserName(String newName) async {
     hoursPlayed.value = profile.profileStats?.totalHoursPlayed ?? 0;
     print("totalGames: ${profile.profileStats?.totalGames}, totalHoursPlayed: ${profile.profileStats?.totalHoursPlayed}");
   }
+  
 
   // Inicializa o perfil e jogos ao iniciar
   Future<void> initializeProfileData() async {
@@ -304,4 +308,38 @@ Future<void> updateUserName(String newName) async {
     super.onInit();
     initializeProfileData();
   }
+
+
+  Future<void> uploadProfilePhoto() async {
+  final token = await getIdToken();
+  if (token == null) {
+    Get.snackbar('Erro', 'Usuário não autenticado.');
+    return;
+  }
+
+  final picker = ImagePicker();
+  final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
+  if (pickedFile == null) {
+    Get.snackbar('Aviso', 'Nenhuma imagem selecionada.');
+    return;
+  }
+
+  try {
+    isLoading(true);
+
+    final newUrl = await profileProvider.uploadAvatar(token, pickedFile.path);
+
+    if (newUrl != null) {
+      avatarUrl.value = newUrl;
+      userProfile.value = userProfile.value?.copyWith(avatarUrl: newUrl);
+      Get.snackbar('Sucesso', 'Foto de perfil atualizada!');
+    }
+  } catch (e) {
+    Get.snackbar('Erro', e.toString().replaceAll('Exception:', '').trim());
+  } finally {
+    isLoading(false);
+  }
+}
+
 }

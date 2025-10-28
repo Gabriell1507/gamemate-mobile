@@ -5,10 +5,12 @@ import 'package:get/get.dart';
 
 class CustomBottomBar extends StatefulWidget {
   final int initialIndex;
+  final Color backgroundColor;
 
   const CustomBottomBar({
     super.key,
     this.initialIndex = 1, // padrão Home
+    this.backgroundColor = Colors.transparent,
   });
 
   @override

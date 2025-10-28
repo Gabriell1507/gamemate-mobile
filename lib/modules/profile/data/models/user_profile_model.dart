@@ -81,4 +81,36 @@ final String? updatedAt;
       updatedAt: map['updatedAt'],
     );
   }
+  UserProfileModel copyWith({
+    String? id,
+    String? email,
+    String? name,
+    String? username,
+    String? bio,
+    String? avatarUrl,
+    String? level,
+    int? achievements,
+    int? platinums,
+    ProfileStats? profileStats,
+    List<LinkedAccountModel>? linkedAccounts,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return UserProfileModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      username: username ?? this.username,
+      bio: bio ?? this.bio,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      level: level ?? this.level,
+      achievements: achievements ?? this.achievements,
+      platinums: platinums ?? this.platinums,
+      profileStats: profileStats ?? this.profileStats,
+      linkedAccounts: linkedAccounts ?? this.linkedAccounts,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }
+
