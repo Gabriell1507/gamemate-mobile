@@ -8,7 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 class SearchResultsView extends GetView<SearchResultsController> {
   const SearchResultsView({super.key});
-
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -100,7 +100,7 @@ class SearchResultsView extends GetView<SearchResultsController> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 0.6,
+                    childAspectRatio: 0.51,
                   ),
                   itemCount: results.length,
                   itemBuilder: (context, index) {
