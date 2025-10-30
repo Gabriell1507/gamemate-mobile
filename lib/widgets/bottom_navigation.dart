@@ -28,10 +28,12 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
         return 1; // antes era 2
       // case '/stats':
       //   return 3;
-      case '/profile':
+      case '/stats':
         return 2; // antes era 4
+      case '/profile':
+        return 3;
       default:
-        return 3; // padrão Home
+        return 4; // padrão Home
     }
   }
 
@@ -66,6 +68,9 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
       //   Get.offAllNamed('/login');
       //   break;
       case 2:
+        Get.offNamed('/stats');
+        break;
+      case 3:
         Get.offNamed('/profile');
         break;
       default:
@@ -79,7 +84,7 @@ class _CustomBottomBarState extends State<CustomBottomBar> {
       // const TabItem(icon: Icons.group, title: 'Amigos'),
       const TabItem(icon: Icons.library_books, title: 'Biblioteca'),
       const TabItem(icon: Icons.home, title: 'Home'),
-      // const TabItem(icon: Icons.bar_chart, title: 'Estatística'),
+      const TabItem(icon: Icons.bar_chart, title: 'Estatística'),
       const TabItem(icon: Icons.person, title: 'Perfil'),
     ];
 
