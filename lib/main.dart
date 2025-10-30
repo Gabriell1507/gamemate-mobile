@@ -15,7 +15,7 @@ Future<void> main() async {
   Get.put(AuthService());
   runApp(
     DevicePreview(
-      enabled: true,
+      enabled: !const bool.fromEnvironment('dart.vm.product'),
       builder: (context) => const GameMateApp(),
     ),
   );
