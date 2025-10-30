@@ -1,3 +1,4 @@
+// library_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -43,6 +44,46 @@ class _LibraryViewState extends State<LibraryView> {
     }).toList();
   }
 
+GameStatus? stringToStatus(String? status) {
+  switch (status) {
+    case 'JOGANDO':
+      return GameStatus.JOGANDO;
+    case 'ZERADO':
+      return GameStatus.ZERADO;
+    case 'DROPADO':
+      return GameStatus.DROPADO;
+    case 'PLATINADO':
+      return GameStatus.PLATINADO;
+    case 'PROXIMO':
+      return GameStatus.PROXIMO;
+    case 'NUNCA_JOGADO':
+      return GameStatus.NUNCA_JOGADO;
+    default:
+      return null;
+  }
+}
+
+
+
+  Color? getBorderColor(GameStatus? status) {
+  switch (status) {
+    case GameStatus.JOGANDO:
+      return const Color(0xFFD4AF37); // Dourado
+    case GameStatus.ZERADO:
+      return const Color(0xFF51FF00); // Verde
+    case GameStatus.DROPADO:
+      return const Color(0xFFF23030); // Vermelho
+    case GameStatus.PLATINADO:
+      return const Color(0xFF00FFFF); // Ciano
+    case GameStatus.PROXIMO:
+      return const Color.fromARGB(255, 215, 218, 12); // Azul
+    case GameStatus.NUNCA_JOGADO:
+    default:
+      return null; // sem borda
+  }
+}
+
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -55,7 +96,6 @@ class _LibraryViewState extends State<LibraryView> {
       backgroundColor: const Color(0xFF001F3F),
       body: SafeArea(
         child: Obx(() {
-          // Se estiver carregando a lista inicial, mostra loader branco centralizado em tela cheia
           if (profileController.syncedGames.isEmpty &&
               profileController.isLoadingMore.value) {
             return const Center(
@@ -66,7 +106,6 @@ class _LibraryViewState extends State<LibraryView> {
             );
           }
 
-          // Caso contrário, mostra toda a tela normalmente
           return Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -81,9 +120,7 @@ class _LibraryViewState extends State<LibraryView> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 // Campo de busca
                 TextField(
                   onChanged: (value) {
@@ -103,94 +140,110 @@ class _LibraryViewState extends State<LibraryView> {
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
                 ),
-
                 const SizedBox(height: 12),
-
-                // Dropdowns em row, alinhados nas extremidades
+                // Dropdowns
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // Dropdown status - esquerda
                     Expanded(
                       child: Obx(() {
-                        return DropdownButton<GameStatus?>(
-                          isExpanded: true,
-                          value: profileController.filterStatus.value,
-                          dropdownColor: const Color(0xFF0A2A52),
-                          style: const TextStyle(color: Colors.white),
-                          hint: const Text('Filtrar por status',
-                              style: TextStyle(color: Colors.white)),
-                          items: [
-                            const DropdownMenuItem(
-                              value: null,
-                              child: Text('Todos'),
-                            ),
-                            ...GameStatus.values.map(
-                              (status) => DropdownMenuItem(
-                                value: status,
-                                child: Text(status.name),
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0A2A52),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: const Color(0xFF2284E6), width: 1),
+                          ),
+                          child: DropdownButton<GameStatus?>(
+                            value: profileController.filterStatus.value,
+                            isExpanded: true,
+                            dropdownColor: const Color(0xFF0A2A52),
+                            underline: const SizedBox(),
+                            style: const TextStyle(color: Colors.white),
+                            hint: const Text('Todos',
+                                style: TextStyle(color: Colors.white),),
+                            onChanged: (status) {
+                              profileController.setFilter(status);
+                              profileController.loadSyncedGames(reset: true);
+                            },
+                            items: [
+                              const DropdownMenuItem(
+                                value: null,
+                                child: Text('Todos',
+                                    style: TextStyle(color: Colors.white)),
                               ),
-                            )
-                          ],
-                          onChanged: (status) {
-                            profileController.setFilter(status);
-                            profileController.loadSyncedGames(reset: true);
-                          },
+                              ...GameStatus.values.map(
+                                (status) => DropdownMenuItem(
+                                  value: status,
+                                  child: Text(status.label,
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       }),
                     ),
-
                     const SizedBox(width: 16),
-
-                    // Dropdown plataforma - direita
                     Expanded(
                       child: Obx(() {
-                        return DropdownButton<Provider?>(
-                          isExpanded: true,
-                          value: profileController.filterProvider.value,
-                          dropdownColor: const Color(0xFF0A2A52),
-                          style: const TextStyle(color: Colors.white),
-                          hint: const Text('Filtrar por plataforma',
-                              style: TextStyle(color: Colors.white)),
-                          items: [
-                            const DropdownMenuItem(
-                              value: null,
-                              child: Text('Todas as plataformas'),
-                            ),
-                            ...Provider.values.map(
-                              (provider) => DropdownMenuItem(
-                                value: provider,
-                                child: Text(provider.name),
+                        return Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF0A2A52),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                                color: const Color(0xFF2284E6), width: 1),
+                          ),
+                          child: DropdownButton<Provider?>(
+                            value: profileController.filterProvider.value,
+                            isExpanded: true,
+                            dropdownColor: const Color(0xFF0A2A52),
+                            underline: const SizedBox(),
+                            style: const TextStyle(color: Colors.white),
+                            hint: const Text('Todas as plataformas',
+                                style: TextStyle(color: Colors.white)),
+                            onChanged: (provider) {
+                              profileController.setProviderFilter(provider);
+                              profileController.loadSyncedGames(reset: true);
+                            },
+                            items: [
+                              const DropdownMenuItem(
+                                value: null,
+                                child: Text('Todas as plataformas',
+                                    style: TextStyle(color: Colors.white)),
                               ),
-                            )
-                          ],
-                          onChanged: (provider) {
-                            profileController.setProviderFilter(provider);
-                            profileController.loadSyncedGames(reset: true);
-                          },
+                              ...Provider.values.map(
+                                (provider) => DropdownMenuItem(
+                                  value: provider,
+                                  child: Text(provider.name,
+                                      style:
+                                          const TextStyle(color: Colors.white)),
+                                ),
+                              ),
+                            ],
+                          ),
                         );
                       }),
                     ),
                   ],
                 ),
-
-                const SizedBox(height: 16),
-
+                const SizedBox(height: 20),
+                // Lista de jogos
                 Expanded(
                   child: Obx(() {
                     final games = filteredGames();
-
-                    if (games.isEmpty && !profileController.isLoadingMore.value) {
+                    if (games.isEmpty &&
+                        !profileController.isLoadingMore.value) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset('assets/icons/box.svg', height: 100),
                             const SizedBox(height: 12),
-                            const Text(
-                              'Nenhum jogo encontrado.',
-                              style: TextStyle(color: Colors.white70),
-                            ),
+                            const Text('Nenhum jogo encontrado.',
+                                style: TextStyle(color: Colors.white70)),
                           ],
                         ),
                       );
@@ -208,14 +261,11 @@ class _LibraryViewState extends State<LibraryView> {
                               ),
                             ),
                             const SizedBox(width: 8),
-                            Text(
-                              '${games.length} Jogos',
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
+                            Text('${games.length} Jogos',
+                                style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
                             const SizedBox(width: 8),
                             const Expanded(
                               child: Divider(
@@ -225,9 +275,7 @@ class _LibraryViewState extends State<LibraryView> {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 12),
-
                         Expanded(
                           child: GridView.builder(
                             controller: _scrollController,
@@ -248,9 +296,13 @@ class _LibraryViewState extends State<LibraryView> {
                                   ? 'https:${game.coverUrl}'
                                   : (game.coverUrl ?? '');
 
+                              final gameStatus = stringToStatus(game.status);
+                              final borderColor = getBorderColor(gameStatus);
+
                               return SteamGameCard(
                                 name: game.name,
                                 coverUrl: coverUrl,
+                                borderColor: borderColor,
                                 onTap: () {
                                   if (game.id.isEmpty) {
                                     Get.snackbar(
@@ -264,7 +316,6 @@ class _LibraryViewState extends State<LibraryView> {
                             },
                           ),
                         ),
-
                         if (profileController.isLoadingMore.value)
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 12),
