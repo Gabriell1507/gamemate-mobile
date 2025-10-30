@@ -119,7 +119,7 @@ class UserStatsView extends GetView<UserStatsController> {
                               },
                             ),
 
-                          const Spacer(), // garante que o conteúdo ocupe o espaço restante
+                          const Spacer(),
                         ],
                       ),
                     ),

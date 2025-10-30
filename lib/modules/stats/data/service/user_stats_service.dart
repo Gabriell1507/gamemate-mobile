@@ -16,7 +16,7 @@ class UserStatsService {
               ),
             )..interceptors.add(LogInterceptor(
                 requestBody: false,
-                responseBody: false, // evita travar o app com logs longos
+                responseBody: false, 
               ));
 
   Future<UserStats> getUserStats(String token) async {
