@@ -18,6 +18,8 @@ import 'package:gamemate/modules/profile/bindings/profile_binding.dart';
 import 'package:gamemate/modules/profile/views/profile_page.dart';
 import 'package:gamemate/modules/splash/binding/splash_binding.dart';
 import 'package:gamemate/modules/splash/view/splash_view.dart';
+import 'package:gamemate/modules/stats/binding/user_stats_binding.dart';
+import 'package:gamemate/modules/stats/view/user_stats_view.dart';
 import 'package:get/get.dart';
 
 class AppRoute {
@@ -93,6 +95,12 @@ class AppRoute {
       name: '/library',
       page: () => const LibraryView(),
       binding: ProfileBinding(),
+      transition: Transition.noTransition,
+    ),
+    GetPage(
+      name: '/stats',
+      page: () => const UserStatsView(),
+      binding: UserStatsBinding(),
       transition: Transition.noTransition,
     ),
   ];
