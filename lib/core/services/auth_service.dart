@@ -126,39 +126,41 @@ class AuthService extends GetxService {
     }
   }
 
-  Future<void> signupWithGoogle({
-    required User user,
-    required UserModel userModel,
-  }) async {
+Future<void> signupWithGoogle({
+  required User user,
+  required UserModel userModel,
+}) async {
+  try {
+    print('[${DateTime.now()}] Iniciando cadastro com Google');
+    final idToken = await user.getIdToken();
+
     try {
-      print('[${DateTime.now()}] Iniciando cadastro com Google');
-      final idToken = await user.getIdToken();
+      final response = await _dio.get(
+        '/users/me',
+        options: Options(headers: {'Authorization': 'Bearer $idToken'}),
+      );
 
-      try {
-        final response = await _dio.get(
-          '/users/me',
-          options: Options(headers: {'Authorization': 'Bearer $idToken'}),
-        );
-
-        if (response.statusCode == 200) {
-          print('[${DateTime.now()}] Usuário já existe no backend.');
-          return;
-        }
-      } on DioException catch (e) {
-        if (e.response?.statusCode != 404) {
-          print(
-              '[${DateTime.now()}] Erro inesperado ao verificar usuário no backend: ${e.response?.statusCode}');
-          rethrow;
-        }
+      if (response.statusCode == 200) {
+        print('[${DateTime.now()}] Usuário já existe no backend.');
+        return;
       }
-
-      await _registerUserLocally(user: user, username: userModel.username);
-      print('[${DateTime.now()}] Cadastro com Google concluído');
-    } catch (e) {
-      print('[${DateTime.now()}] Erro no cadastro com Google: $e');
-      throw Exception("Erro ao cadastrar com Google: $e");
+    } on DioException catch (e) {
+      if (e.response?.statusCode != 404) {
+        print(
+            '[${DateTime.now()}] Erro inesperado ao verificar usuário no backend: ${e.response?.statusCode}');
+        // apenas registra o erro, não trava o app
+        return;
+      }
     }
+
+    await _registerUserLocally(user: user, username: userModel.username);
+    print('[${DateTime.now()}] Cadastro com Google concluído');
+  } catch (e) {
+    // apenas loga o erro — sem lançar Exception pra não travar o login
+    print('[${DateTime.now()}] Erro no cadastro com Google: $e');
   }
+}
+
 
   Future<void> _registerUserLocally({
     required User user,

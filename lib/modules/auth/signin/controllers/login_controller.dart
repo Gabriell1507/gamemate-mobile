@@ -62,38 +62,42 @@ class LoginController extends GetxController {
   }
 
   Future<void> loginWithGoogle() async {
-    FocusScope.of(Get.context!).unfocus();
-    try {
-      isLoading.value = true;
-      UserCredential userCredential = await _authService.signInWithGoogle();
-      User? firebaseUser = userCredential.user;
+  FocusScope.of(Get.context!).unfocus();
+  try {
+    isLoading.value = true;
+    UserCredential userCredential = await _authService.signInWithGoogle();
+    User? firebaseUser = userCredential.user;
 
-      if (firebaseUser != null) {
-        UserModel userModel = UserModel(
-          uid: firebaseUser.uid,
-          username: firebaseUser.displayName ?? '',
-          nickname: '',
-          email: firebaseUser.email ?? '',
-          password: '',
-        );
-
-        await _authService.signupWithGoogle(
-          user: firebaseUser,
-          userModel: userModel,
-        );
-
-        Get.offAllNamed('/home');
-      }
-    } catch (e) {
-      Get.snackbar(
-        'Erro',
-        e.toString().replaceAll('Exception:', '').trim(),
-        snackPosition: SnackPosition.BOTTOM,
+    if (firebaseUser != null) {
+      UserModel userModel = UserModel(
+        uid: firebaseUser.uid,
+        username: firebaseUser.displayName ?? '',
+        nickname: '',
+        email: firebaseUser.email ?? '',
+        password: '',
       );
-    } finally {
-      isLoading.value = false;
+
+      
+      _authService.signupWithGoogle(
+        user: firebaseUser,
+        userModel: userModel,
+      );
+
+      // navega direto pra home
+      Get.offAllNamed('/home');
     }
+  } catch (e) {
+    Get.snackbar(
+      'Erro',
+      e.toString().replaceAll('Exception:', '').trim(),
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  } finally {
+    isLoading.value = false;
   }
+}
+
+
 
   @override
   void onClose() {

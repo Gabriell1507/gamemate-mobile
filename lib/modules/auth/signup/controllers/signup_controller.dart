@@ -101,34 +101,37 @@ class SignupController extends GetxController {
   }
 
   Future<void> loginWithGoogle() async {
-    try {
-      isLoadingGoogle.value = true;
+  try {
+    isLoadingGoogle.value = true;
 
-      UserCredential userCredential = await _authService.signInWithGoogle();
-      User? firebaseUser = userCredential.user;
+    UserCredential userCredential = await _authService.signInWithGoogle();
+    User? firebaseUser = userCredential.user;
 
-      if (firebaseUser != null) {
-        UserModel userModel = UserModel(
-          uid: firebaseUser.uid,
-          username: firebaseUser.displayName ?? '',
-          nickname: '',
-          email: firebaseUser.email ?? '',
-          password: '',
-        );
+    if (firebaseUser != null) {
+      UserModel userModel = UserModel(
+        uid: firebaseUser.uid,
+        username: firebaseUser.displayName ?? '',
+        nickname: '',
+        email: firebaseUser.email ?? '',
+        password: '',
+      );
 
-        await _authService.signupWithGoogle(
-          user: firebaseUser,
-          userModel: userModel,
-        );
+      
+      _authService.signupWithGoogle(
+        user: firebaseUser,
+        userModel: userModel,
+      );
 
-        Get.offAllNamed('/home');
-      }
-    } catch (e) {
-      Get.snackbar('Erro', e.toString().replaceAll('Exception:', '').trim());
-    } finally {
-      isLoadingGoogle.value = false;
+      // navega imediatamente
+      Get.offAllNamed('/home');
     }
+  } catch (e) {
+    Get.snackbar('Erro', e.toString().replaceAll('Exception:', '').trim());
+  } finally {
+    isLoadingGoogle.value = false;
   }
+}
+
 
   @override
   void onClose() {
